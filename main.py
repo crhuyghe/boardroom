@@ -10,7 +10,9 @@ async def connection(websocket: server.WebSocketServerProtocol):
             print(message)
             await websocket.send(message)
     except ws.ConnectionClosedOK:
-        print("Client disconnected")
+        print("Client disconnected:", websocket.id)
+    except ConnectionError:
+        print("Client disconnected with error:", websocket.id)
 
 async def main():
     async with ws.serve(connection, "localhost", 8765):
