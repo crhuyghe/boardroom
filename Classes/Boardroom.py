@@ -1,4 +1,4 @@
-class DatabaseReader:
-    wd = __name__
+# Discussion board
+class Boardroom:
     def __init__(self):
         print("hi")
