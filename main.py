@@ -1,6 +1,11 @@
 import asyncio
 import websockets as ws
 from websockets import server
+from Classes.DatabaseReader import DatabaseReader
+
+BoardroomDB = DatabaseReader("boardroom")
+UserDB = DatabaseReader("user")
+MessageDB = DatabaseReader("message")
 
 # In the current state, hosts a localhost websocket on port 8765.
 # This connection accepts messages from the client and echoes them back.
@@ -24,4 +29,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    print("Launching server...")
     asyncio.run(main())
