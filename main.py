@@ -50,8 +50,8 @@ async def connection(websocket: server.WebSocketServerProtocol):
             elif message == 16:
                 print("SendMessage")
 
-            # print(message)
-            # await websocket.send(message)
+            print(message)
+            await websocket.send(message)
 
     except ws.ConnectionClosedOK:
         print("Client disconnected:", websocket.id)
