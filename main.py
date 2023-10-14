@@ -57,6 +57,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 print("DeletePost")
             elif message["action"] == 19:
                 print("SendMessage")
+            elif message["action"] == 17:
+                print("DeletePost")
+            elif message["action"] == 18:
+                print("DeletePostReply")
 
             print(message)
             await websocket.send(encoder.encode(message))

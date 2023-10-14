@@ -8,17 +8,19 @@ class DatabaseReader:
     wd = __file__[:str(__file__[:str(__file__).rindex("\\")]).rindex("\\")]
     mode = ""
     df = None
+    reply_df = None
 
     def __init__(self, mode: str):
         """Controls functionality for reading databases.\nAcceptable modes are:
         'boardroom'\n\n'message'\n\n'user'"""
         self.mode = mode
         if mode == "boardroom":
-            df = pd.read_csv(f"{self.wd}\\Database\\Boardrooms.csv")
+            self.df = pd.read_csv(f"{self.wd}\\Database\\Boardrooms.csv")
+            self.reply_df = pd.read_csv(f"{self.wd}\\Database\\Replies.csv")
         elif mode == "message":
-            df = pd.read_csv(f"{self.wd}\\Database\\Messages.csv")
+            self.df = pd.read_csv(f"{self.wd}\\Database\\Messages.csv")
         elif mode == "user":
-            df = pd.read_csv(f"{self.wd}\\Database\\Users.csv")
+            self.df = pd.read_csv(f"{self.wd}\\Database\\Users.csv")
         else:
             raise ValueError
 
