@@ -14,8 +14,44 @@ async def connection(websocket: server.WebSocketServerProtocol):
         print("New Connection:", websocket.id)
         while True:
             message = await websocket.recv()
-            print(message)
-            await websocket.send(message)
+
+            if message == 0:
+                print("AccessAccount")
+            elif message == 1:
+                print("CreateAccount")
+            elif message == 2:
+                print("CreatePost")
+            elif message == 3:
+                print("DeleteAccount")
+            elif message == 4:
+                print("DeleteMessage")
+            elif message == 5:
+                print("EditMessage")
+            elif message == 6:
+                print("GetPost")
+            elif message == 7:
+                print("LikePost")
+            elif message == 8:
+                print("LikePostReply")
+            elif message == 9:
+                print("LogoutAccount")
+            elif message == 10:
+                print("ModifyAccount")
+            elif message == 11:
+                print("ModifyPost")
+            elif message == 12:
+                print("ModifyPostReply")
+            elif message == 13:
+                print("Refresh")
+            elif message == 14:
+                print("ReplyPost")
+            elif message == 15:
+                print("SearchPosts")
+            elif message == 16:
+                print("SendMessage")
+
+            # print(message)
+            # await websocket.send(message)
 
     except ws.ConnectionClosedOK:
         print("Client disconnected:", websocket.id)

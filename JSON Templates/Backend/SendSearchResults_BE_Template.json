@@ -1,0 +1,30 @@
+{
+    "success": true,
+    "posts": [
+        {
+            "post_title": "<title>",
+            "post_creator": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>",
+                "id": "<id>"
+            },
+            "post_id": "<id>",
+            "post_likes": "<like_count>",
+            "post_views": "<view_count>",
+            "post_replies": "<reply_count>"
+        },
+        {
+            "post_title": "<title>",
+            "post_creator": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>"
+            },
+            "post_id": "<id>",
+            "post_likes": "<like_count>",
+            "post_views": "<view_count>",
+            "post_replies": "<reply_count>"
+        }
+    ]
+}

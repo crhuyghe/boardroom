@@ -1,0 +1,5 @@
+{
+    "action": 16,
+    "recipient": "<recipient_name/email>",
+    "text": "text"
+}

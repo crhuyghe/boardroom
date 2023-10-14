@@ -34,6 +34,10 @@ class DatabaseReader:
         """Takes arguments to modify an entry in the database"""
         print("hi")
 
+    def deleteEntry(self, *args):
+        """Takes arguments to delete an entry in the database"""
+        print("hi")
+
     def search(self, *args):
         """For user and boardroom databases; Allows searching for users/boardrooms"""
         if self.mode == "boardroom":

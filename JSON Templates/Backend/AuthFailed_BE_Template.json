@@ -1,0 +1,6 @@
+{
+    "success": false,
+    "message": "Exceeded maximum login attempts. Locking account for 24 hours.",
+    "account_found": "true or false",
+    "lockout": false
+}
