@@ -11,6 +11,7 @@
     "post_likes": "<like_count>",
     "post_views": "<view_count>",
     "post_text": "<text>",
+    "post_time": "<time_posted>",
     "post_is_edited": "True or False",
     "post_replies": [
         {
@@ -23,7 +24,8 @@
                 "email": "<email>",
                 "picture": "<picture>",
                 "id": "<id>"
-            }
+            },
+            "reply_time": "<time_posted>"
         },
         {
             "reply_likes": "<like_count>",
@@ -35,7 +37,8 @@
                 "email": "<email>",
                 "picture": "<picture>",
                 "id": "<id>"
-            }
+            },
+            "reply_time": "<time_posted>"
         }
     ]
 }
