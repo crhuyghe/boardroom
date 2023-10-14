@@ -1,0 +1,10 @@
+{
+    "action": 11,
+    "current_password": "<encrypted_password>",
+    "modifications": {
+        "picture": "new picture, or false",
+        "email": "new email, or false",
+        "password": "new password, or false",
+        "name": "new name, or false"
+    }
+}

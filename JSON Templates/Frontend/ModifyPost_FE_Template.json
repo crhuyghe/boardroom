@@ -1,0 +1,8 @@
+{
+    "action": 12,
+    "post_id": "<id>",
+    "modifications": {
+        "text": "new text, or false",
+        "tags": "new list of tags (form: [tag1, tag2,...]), or false"
+    }
+}

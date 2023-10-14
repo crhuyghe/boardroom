@@ -1,0 +1,4 @@
+{
+    "success": true,
+    "changes": "take object from SendPost or SendMessages (without success field)"
+}

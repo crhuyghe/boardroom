@@ -1,0 +1,23 @@
+{
+    "success": true,
+    "recipient": {
+        "name": "<name>",
+        "email": "<email>",
+        "picture": "<picture>",
+        "id": "<id>"
+    },
+    "messages": [
+        {
+            "sender_message": "<true if from sender, false if from recipient>",
+            "text": "<text>",
+            "message_is_edited": "true or false",
+            "id": 0
+        },
+        {
+            "sender_message": "<true if from sender, false if from recipient>",
+            "text": "<text>",
+            "message_is_edited": "true or false",
+            "id": 1
+        }
+    ]
+}

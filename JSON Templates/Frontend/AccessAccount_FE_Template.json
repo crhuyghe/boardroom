@@ -1,0 +1,5 @@
+{
+    "action": 1,
+    "email": "<email>",
+    "password": "<encrypted_password>"
+}

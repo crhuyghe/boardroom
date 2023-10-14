@@ -1,0 +1,41 @@
+{
+    "success": true,
+    "post_title": "<title>",
+    "post_id": "<id>",
+    "post_creator": {
+        "name": "<name>",
+        "email": "<email>",
+        "picture": "<picture>",
+        "id": "<id>"
+    },
+    "post_likes": "<like_count>",
+    "post_views": "<view_count>",
+    "post_text": "<text>",
+    "post_is_edited": "True or False",
+    "post_replies": [
+        {
+            "reply_likes": "<like_count>",
+            "reply_text": "<text>",
+            "reply_is_edited": "True or False",
+            "reply_id": 0,
+            "reply_creator": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>",
+                "id": "<id>"
+            }
+        },
+        {
+            "reply_likes": "<like_count>",
+            "reply_text": "<text>",
+            "reply_is_edited": "True or False",
+            "reply_id": 1,
+            "reply_creator": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>",
+                "id": "<id>"
+            }
+        }
+    ]
+}
