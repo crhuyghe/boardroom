@@ -18,44 +18,44 @@ async def connection(websocket: server.WebSocketServerProtocol):
         while True:
             message = decoder.decode(await websocket.recv())
 
-            if message["action"] == 0:
+            if message["action"] == 1:
                 print("AccessAccount")
-            elif message["action"] == 1:
-                print("CreateAccount")
             elif message["action"] == 2:
-                print("CreatePost")
+                print("CreateAccount")
             elif message["action"] == 3:
-                print("DeleteAccount")
+                print("CreatePost")
             elif message["action"] == 4:
-                print("DeleteMessage")
+                print("DeleteAccount")
             elif message["action"] == 5:
-                print("EditMessage")
+                print("DeleteMessage")
             elif message["action"] == 6:
-                print("GetPost")
+                print("EditMessage")
             elif message["action"] == 7:
-                print("LikePost")
+                print("GetPost")
             elif message["action"] == 8:
-                print("LikePostReply")
+                print("LikePost")
             elif message["action"] == 9:
-                print("LogoutAccount")
+                print("LikePostReply")
             elif message["action"] == 10:
-                print("ModifyAccount")
+                print("LogoutAccount")
             elif message["action"] == 11:
-                print("ModifyPost")
+                print("ModifyAccount")
             elif message["action"] == 12:
-                print("ModifyPostReply")
+                print("ModifyPost")
             elif message["action"] == 13:
-                print("Refresh")
+                print("ModifyPostReply")
             elif message["action"] == 14:
-                print("ReplyPost")
+                print("Refresh")
             elif message["action"] == 15:
-                print("SearchPosts")
+                print("ReplyPost")
             elif message["action"] == 16:
-                print("SendMessage")
+                print("SearchPosts")
             elif message["action"] == 17:
-                print("DeletePost")
-            elif message["action"] == 18:
                 print("DeletePostReply")
+            elif message["action"] == 18:
+                print("DeletePost")
+            elif message["action"] == 19:
+                print("SendMessage")
 
             print(message)
             await websocket.send(message)
