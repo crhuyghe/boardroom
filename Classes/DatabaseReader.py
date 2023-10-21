@@ -43,13 +43,12 @@ class DatabaseReader:
                 raise ValueError
             if len(self.df) == 0:
                 new_user = User(0, args[0], args[1])
-                self.df = pd.DataFrame([new_user.format_with_password(self.decrypt(args[2]))])
+                self.df = pd.DataFrame([new_user.format_with_password(self.__decrypt(args[2]))])
             else:
                 new_user = User(self.df["id"].iloc[-1] + 1, args[0], args[1])
                 self.df = pd.concat((self.df,
-                    pd.DataFrame([new_user.format_with_password(self.decrypt(args[2]))])), ignore_index=False)
-            print(self.df)
-            self.df.to_csv(self.df_file, index=False)
+                    pd.DataFrame([new_user.format_with_password(self.__decrypt(args[2]))])), ignore_index=False)
+            self.__updateDF()
             return new_user
         else:
             print("hi")
@@ -60,7 +59,16 @@ class DatabaseReader:
 
     def deleteEntry(self, *args):
         """Takes arguments to delete an entry in the database"""
-        print("hi")
+        if self.mode == "boardroom":
+            print("hi")
+        elif self.mode == "user":
+            if self.__decrypt(args[1]) == self.df.loc[self.df["id"] == args[0].id]["password"].iloc[0]:
+                self.df.drop(self.df[self.df["id"] == args[0].id].index, inplace=True)
+                self.__updateDF()
+            else:
+                raise ValueError
+        else:
+            print("hi")
 
     def search(self, *args):
         """For user and boardroom databases; Allows searching for users/boardrooms"""
@@ -72,6 +80,11 @@ class DatabaseReader:
         else:
             raise Exception("search not supported on message database")
 
+    def __updateDF(self):
+        self.df.to_csv(self.df_file, index=False)
+        if self.mode == "boardroom":
+            self.reply_df.to_csv(self.reply_df_file, index=False)
+
     @staticmethod
-    def decrypt(password: str) -> str:
+    def __decrypt(password: str) -> str:
         return password
