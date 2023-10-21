@@ -4,58 +4,68 @@ import websockets as ws
 from websockets import server
 from Classes.DatabaseReader import DatabaseReader
 
-BoardroomDB = DatabaseReader("boardroom")
-UserDB = DatabaseReader("user")
-MessageDB = DatabaseReader("message")
+boardroomDB = DatabaseReader("boardroom")
+userDB = DatabaseReader("user")
+messageDB = DatabaseReader("message")
 
 decoder = json.JSONDecoder()
+encoder = json.JSONEncoder()
 
 # In the current state, hosts a localhost websocket on port 8765.
 # This connection accepts messages from the client and echoes them back.
 async def connection(websocket: server.WebSocketServerProtocol):
     try:
         print("New Connection:", websocket.id)
+        current_user = None
         while True:
             message = decoder.decode(await websocket.recv())
 
-            if message["action"] == 0:
+            if message["action"] == 1:
                 print("AccessAccount")
-            elif message["action"] == 1:
-                print("CreateAccount")
-            elif message["action"] == 2:
-                print("CreatePost")
+            elif message["action"] == 2:  # Create Account
+                response = {}
+                try:
+                    current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
+                    response["success"] = True
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "AccountExistsError"
+                finally:
+                    await websocket.send(encoder.encode(response))
             elif message["action"] == 3:
-                print("DeleteAccount")
+                print("CreatePost")
             elif message["action"] == 4:
-                print("DeleteMessage")
+                print("DeleteAccount")
             elif message["action"] == 5:
-                print("EditMessage")
+                print("DeleteMessage")
             elif message["action"] == 6:
-                print("GetPost")
+                print("EditMessage")
             elif message["action"] == 7:
-                print("LikePost")
+                print("GetPost")
             elif message["action"] == 8:
-                print("LikePostReply")
+                print("LikePost")
             elif message["action"] == 9:
-                print("LogoutAccount")
+                print("LikePostReply")
             elif message["action"] == 10:
-                print("ModifyAccount")
+                print("LogoutAccount")
             elif message["action"] == 11:
-                print("ModifyPost")
+                print("ModifyAccount")
             elif message["action"] == 12:
-                print("ModifyPostReply")
+                print("ModifyPost")
             elif message["action"] == 13:
-                print("Refresh")
+                print("ModifyPostReply")
             elif message["action"] == 14:
-                print("ReplyPost")
+                print("Refresh")
             elif message["action"] == 15:
-                print("SearchPosts")
+                print("ReplyPost")
             elif message["action"] == 16:
-                print("SendMessage")
+                print("SearchPosts")
             elif message["action"] == 17:
-                print("DeletePost")
-            elif message["action"] == 18:
                 print("DeletePostReply")
+            elif message["action"] == 18:
+                print("DeletePost")
+            elif message["action"] == 19:
+                print("SendMessage")
 
             print(message)
             await websocket.send(message)
