@@ -19,11 +19,11 @@ async def connection(websocket: server.WebSocketServerProtocol):
         current_user = None
         while True:
             message = decoder.decode(await websocket.recv())
+            response = {}
 
             if message["action"] == 1:
                 print("AccessAccount")
             elif message["action"] == 2:  # Create Account
-                response = {}
                 try:
                     current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
                     response["success"] = True
@@ -34,8 +34,15 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     await websocket.send(encoder.encode(response))
             elif message["action"] == 3:
                 print("CreatePost")
-            elif message["action"] == 4:
-                print("DeleteAccount")
+            elif message["action"] == 4:  # Delete Account
+                try:
+                    userDB.deleteEntry(current_user, message["password"])
+                    current_user = None
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "TempWrongPasswordError"
+                finally:
+                    await websocket.send(encoder.encode(response))
             elif message["action"] == 5:
                 print("DeleteMessage")
             elif message["action"] == 6:
