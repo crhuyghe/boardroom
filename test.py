@@ -1,7 +1,9 @@
 import pandas as pd
 import json
+
 from Classes.DatabaseReader import DatabaseReader
 from Classes.User import User
+from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
 boardroomDB = DatabaseReader("boardroom")
 userDB = DatabaseReader("user")
@@ -15,8 +17,25 @@ def respond(message: dict):
     current_user = User(0, "cave.johnson@aperture.com", "Cave Johnson")
     response = {}
 
-    if message["action"] == 1:
-        print("AccessAccount")
+    if message["action"] == 1:  # Access Account
+        try:
+            current_user = userDB.readEntry(message["email"], message["password"])
+            response["success"] = True
+        except KeyError:
+            response["success"] = False
+            response["message"] = "Incorrect email or password"
+            response["account_found"] = False
+            response["lockout"] = False
+        except IncorrectPasswordError:
+            response["success"] = False
+            response["message"] = "Incorrect email or password"
+            response["account_found"] = True
+            response["lockout"] = False
+        except AccountLockoutError:
+            response["success"] = False
+            response["message"] = "Exceeded maximum login attempts. Account is locked until tomorrow."
+            response["lockout"] = True
+
     elif message["action"] == 2:  # Create Account
         try:
             current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
@@ -32,7 +51,7 @@ def respond(message: dict):
         try:
             userDB.deleteEntry(current_user, message["password"])
             current_user = None
-        except ValueError:
+        except IncorrectPasswordError:
             response["success"] = False
             response["message"] = "TempWrongPasswordError"
         # finally:
@@ -73,12 +92,13 @@ def respond(message: dict):
 
 # curr_message = {
 #     "action": 2,
-#     "email": "cave.johnson@aperture.com",
-#     "name": "Cave Johnson",
-#     "password": "IH8Lemons"
+#     "email": "test@test.com",
+#     "name": "test",
+#     "password": "test"
 # }
 curr_message = {
-    "action": 4,
+    "action": 1,
+    "email": "cave.johnson@aperture.com",
     "password": "IH8Lemons"
 }
 respond(curr_message)
