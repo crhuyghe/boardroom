@@ -33,20 +33,19 @@ class DatabaseReader:
 
     def readEntry(self, *args):
         """Takes arguments to locate a specified entry in the database"""
-        row = self.search(args[0])
-        if len(row) == 0:
-            raise KeyError
-        if row.login_attempts.values[0] >= 3:
-            raise AccountLockoutError
-        if self.__decrypt(args[1]) == row.password.values[0]:
-            return User(row.id.values[0], row.email.values[0], row.name.values[0])
-        else:
-            self.df.loc[self.df['email'] == args[0], "login_attempts"] += 1
-            self.__updateDF()
-            if row.login_attempts.values[0] == 2:
-                raise AccountLockoutError
+        if self.mode == "boardroom":
+            print("hi")
+        if self.mode == "user":
+            row = self.search("email", args[0])
+            if len(row) == 0:
+                raise KeyError
+            self.__check_lockout(row.id.values[0])
+            if self.__decrypt(args[1]) == row.password.values[0]:
+                return User(row.id.values[0], row.email.values[0], row.name.values[0])
             else:
-                raise IncorrectPasswordError
+                self.__increment_lockout_counter(row.id.values[0])
+        else:
+            print("hi")
 
 
     def writeEntry(self, *args):
@@ -70,18 +69,43 @@ class DatabaseReader:
 
     def modifyEntry(self, *args):
         """Takes arguments to modify an entry in the database"""
-        print("hi")
+        if self.mode == "boardroom":
+            print("hi")
+        elif self.mode == "user":
+            row = self.search("id", args[0].id)
+            self.__check_lockout(row.id.values[0])
+            if self.__decrypt(args[1]) == row.password.values[0]:
+                if args[2]["picture"] is not False:
+                    self.df.loc[self.df['id'] == args[0].id, "picture_link"] = args[2]["picture"]
+                if args[2]["email"] is not False:
+                    self.df.loc[self.df['id'] == args[0].id, "email"] = args[2]["email"]
+                if args[2]["password"] is not False:
+                    self.df.loc[self.df['id'] == args[0].id, "password"] = args[2]["password"]
+                if args[2]["name"] is not False:
+                    self.df.loc[self.df['id'] == args[0].id, "name"] = args[2]["name"]
+                self.__updateDF()
 
+                row = self.search("id", args[0].id)
+                return User(row.id.values[0], row.email.values[0], row.name.values[0])
+            else:
+                self.__increment_lockout_counter(row.id.values[0])
+        else:
+            print("hi")
+
+                # self.df.drop(self.df[self.df["id"] == args[0].id].index, inplace=True)
+                # self.__updateDF()
     def deleteEntry(self, *args):
         """Takes arguments to delete an entry in the database"""
         if self.mode == "boardroom":
             print("hi")
         elif self.mode == "user":
-            if self.__decrypt(args[1]) == self.df.loc[self.df["id"] == args[0].id]["password"].iloc[0]:
+            row = self.search("id", args[0].id)
+            self.__check_lockout(row.id.values[0])
+            if self.__decrypt(args[1]) == row.password.values[0]:
                 self.df.drop(self.df[self.df["id"] == args[0].id].index, inplace=True)
                 self.__updateDF()
             else:
-                raise ValueError
+                self.__increment_lockout_counter(row.id.values[0])
         else:
             print("hi")
 
@@ -90,14 +114,29 @@ class DatabaseReader:
         if self.mode == "boardroom":
             print("hi")
         elif self.mode == "user":
-            return self.df.loc[self.df["email"] == args[0]]
+            if args[0] == "email":
+                return self.df.loc[self.df["email"] == args[1]]
+            elif args[0] == "id":
+                return self.df.loc[self.df["id"] == args[1]]
         else:
             raise Exception("search not supported on message database")
 
     def __updateDF(self):
+        """Writes current databases to file"""
         self.df.to_csv(self.df_file, index=False)
         if self.mode == "boardroom":
             self.reply_df.to_csv(self.reply_df_file, index=False)
+
+    def __increment_lockout_counter(self, user_id):
+        """Increments login attempt counter on entries and raises appropriate error"""
+        self.df.loc[self.df['id'] == user_id, "login_attempts"] += 1
+        self.__updateDF()
+        self.__check_lockout(user_id)
+        raise IncorrectPasswordError
+
+    def __check_lockout(self, user_id):
+        if self.search("id", user_id).login_attempts.values[0] == 3:
+            raise AccountLockoutError
 
     @staticmethod
     def __decrypt(password: str) -> str:
