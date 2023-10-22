@@ -1,5 +1,5 @@
 {
     "success": false,
-    "message": "Exceeded maximum login attempts. Locking account for 24 hours.",
+    "message": "Exceeded maximum login attempts. Locking account until tomorrow",
     "lockout": true
 }

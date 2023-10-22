@@ -11,6 +11,6 @@ class User:
         self.email = email
         self.name = name
 
-    def format_with_password(self, password, time_created=pd.Timestamp.now()):
+    def format_with_password(self, password, time_created=pd.Timestamp.now(), login_attempts=0):
         return {"id": self.id, "email": self.email, "name": self.name, "password": password,
-                "time_created": time_created, "picture_link": self.picture}
+                "time_created": time_created, "picture_link": self.picture, "login_attempts": login_attempts}

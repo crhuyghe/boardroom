@@ -3,6 +3,7 @@ import pandas as pd
 from Classes.User import User
 from Classes.Boardroom import Boardroom
 from Classes.Message import Message
+from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
 class DatabaseReader:
     wd = __file__[:str(__file__[:str(__file__).rindex("\\")]).rindex("\\")]
@@ -32,7 +33,21 @@ class DatabaseReader:
 
     def readEntry(self, *args):
         """Takes arguments to locate a specified entry in the database"""
-        print("hi")
+        row = self.search(args[0])
+        if len(row) == 0:
+            raise KeyError
+        if row.login_attempts.values[0] >= 3:
+            raise AccountLockoutError
+        if self.__decrypt(args[1]) == row.password.values[0]:
+            return User(row.id.values[0], row.email.values[0], row.name.values[0])
+        else:
+            self.df.loc[self.df['email'] == args[0], "login_attempts"] += 1
+            self.__updateDF()
+            if row.login_attempts.values[0] == 2:
+                raise AccountLockoutError
+            else:
+                raise IncorrectPasswordError
+
 
     def writeEntry(self, *args):
         """Takes arguments to write a new entry into the database"""
@@ -75,8 +90,7 @@ class DatabaseReader:
         if self.mode == "boardroom":
             print("hi")
         elif self.mode == "user":
-            row = self.df.loc[self.df["email"] == args[0]]
-            # return User(self.df)
+            return self.df.loc[self.df["email"] == args[0]]
         else:
             raise Exception("search not supported on message database")
 
