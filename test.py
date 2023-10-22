@@ -35,7 +35,6 @@ def respond(message: dict):
             response["success"] = False
             response["message"] = "Exceeded maximum login attempts. Account is locked until tomorrow."
             response["lockout"] = True
-
     elif message["action"] == 2:  # Create Account
         try:
             current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
@@ -43,8 +42,6 @@ def respond(message: dict):
         except ValueError:
             response["success"] = False
             response["message"] = "AccountExistsError"
-        # finally:
-        #     await websocket.send(encoder.encode(response))
     elif message["action"] == 3:
         print("CreatePost")
     elif message["action"] == 4:  # Delete Account
@@ -54,8 +51,6 @@ def respond(message: dict):
         except IncorrectPasswordError:
             response["success"] = False
             response["message"] = "TempWrongPasswordError"
-        # finally:
-        #     await websocket.send(encoder.encode(response))
     elif message["action"] == 5:
         print("DeleteMessage")
     elif message["action"] == 6:

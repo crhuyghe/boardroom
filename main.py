@@ -3,6 +3,7 @@ import json
 import websockets as ws
 from websockets import server
 from Classes.DatabaseReader import DatabaseReader
+from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
 boardroomDB = DatabaseReader("boardroom")
 userDB = DatabaseReader("user")
@@ -22,7 +23,23 @@ async def connection(websocket: server.WebSocketServerProtocol):
             response = {}
 
             if message["action"] == 1:
-                print("AccessAccount")
+                try:
+                    current_user = userDB.readEntry(message["email"], message["password"])
+                    response["success"] = True
+                except KeyError:
+                    response["success"] = False
+                    response["message"] = "Incorrect email or password"
+                    response["account_found"] = False
+                    response["lockout"] = False
+                except IncorrectPasswordError:
+                    response["success"] = False
+                    response["message"] = "Incorrect email or password"
+                    response["account_found"] = True
+                    response["lockout"] = False
+                except AccountLockoutError:
+                    response["success"] = False
+                    response["message"] = "Exceeded maximum login attempts. Account is locked until tomorrow."
+                    response["lockout"] = True
             elif message["action"] == 2:  # Create Account
                 try:
                     current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
@@ -30,8 +47,6 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 except ValueError:
                     response["success"] = False
                     response["message"] = "AccountExistsError"
-                finally:
-                    await websocket.send(encoder.encode(response))
             elif message["action"] == 3:
                 print("CreatePost")
             elif message["action"] == 4:  # Delete Account
@@ -41,8 +56,6 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 except ValueError:
                     response["success"] = False
                     response["message"] = "TempWrongPasswordError"
-                finally:
-                    await websocket.send(encoder.encode(response))
             elif message["action"] == 5:
                 print("DeleteMessage")
             elif message["action"] == 6:
@@ -75,7 +88,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 print("SendMessage")
 
             print(message)
-            await websocket.send(message)
+            await websocket.send(encoder.encode(response))
 
     except ws.ConnectionClosedOK:
         print("Client disconnected:", websocket.id)
