@@ -1,5 +1,3 @@
-from Classes.User import User
-
 # Discussion board
 class Boardroom:
     poster = None
