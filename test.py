@@ -1,13 +1,14 @@
-import pandas as pd
 import json
 
-from Classes.DatabaseReader import DatabaseReader
-from Classes.User import User
+from Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
+from Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
+from Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
+from Classes.Models.User import User
 from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
-boardroomDB = DatabaseReader("boardroom")
-userDB = DatabaseReader("user")
-messageDB = DatabaseReader("message")
+boardroomDB = BoardroomDatabaseManager()
+userDB = UserDatabaseManager()
+messageDB = MessageDatabaseManager()
 
 decoder = json.JSONDecoder()
 encoder = json.JSONEncoder()
@@ -20,7 +21,7 @@ def respond(message: dict):
 
     if message["action"] == 1:  # Access Account
         try:
-            current_user = userDB.readEntry(message["email"], message["password"])
+            current_user = userDB.login_account(message["email"], message["password"])
             response["success"] = True
         except KeyError:
             response["success"] = False
@@ -39,7 +40,7 @@ def respond(message: dict):
 
     elif message["action"] == 2:  # Create Account
         try:
-            current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
+            current_user = userDB.create_account(message["email"], message["name"], message["password"])
             response["success"] = True
         except ValueError:
             response["success"] = False
@@ -50,7 +51,7 @@ def respond(message: dict):
 
     elif message["action"] == 4:  # Delete Account
         try:
-            userDB.deleteEntry(current_user, message["password"])
+            userDB.delete_account(current_user.id, message["password"])
             current_user = None
             response["success"] = True
         except IncorrectPasswordError:
@@ -84,7 +85,7 @@ def respond(message: dict):
 
     elif message["action"] == 11:  # Modify Account
         try:
-            current_user = userDB.modifyEntry(current_user, message["password"], message["modifications"])
+            current_user = userDB.modify_account(current_user, message["password"], message["modifications"])
         except IncorrectPasswordError:
             response["success"] = False
             response["message"] = "Incorrect email or password"
@@ -122,16 +123,16 @@ def respond(message: dict):
     print(response)
 
 
-curr_message = {
-    "action": 2,
-    "email": "test@test.com",
-    "name": "Test Testington",
-    "password": "test"
-}
 # curr_message = {
-#     "action": 1,
-#     "email": "cave.johnson@aperture.com",
-#     "password": "IH8Lemons"
+#     "action": 2,
+#     "email": "test@test.com",
+#     "name": "Test Testington",
+#     "password": "test"
 # }
+curr_message = {
+    "action": 1,
+    "email": "cave.johnson@aperture.com",
+    "password": "IH8Lemons"
+}
 
 respond(curr_message)

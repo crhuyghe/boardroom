@@ -1,5 +1,3 @@
-from Classes.User import User
-
 # Class for direct messages and possibly for boardroom replies
 class Message:
     sender = None

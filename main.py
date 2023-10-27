@@ -2,12 +2,15 @@ import asyncio
 import json
 import websockets as ws
 from websockets import server
-from Classes.DatabaseReader import DatabaseReader
+
+from Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
+from Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
+from Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
 from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
-boardroomDB = DatabaseReader("boardroom")
-userDB = DatabaseReader("user")
-messageDB = DatabaseReader("message")
+boardroomDB = BoardroomDatabaseManager()
+userDB = UserDatabaseManager()
+messageDB = MessageDatabaseManager()
 
 decoder = json.JSONDecoder()
 encoder = json.JSONEncoder()
@@ -22,9 +25,9 @@ async def connection(websocket: server.WebSocketServerProtocol):
             message = decoder.decode(await websocket.recv())
             response = {}
 
-            if message["action"] == 1:
+            if message["action"] == 1:  # Access Account
                 try:
-                    current_user = userDB.readEntry(message["email"], message["password"])
+                    current_user = userDB.login_account(message["email"], message["password"])
                     response["success"] = True
                 except KeyError:
                     response["success"] = False
@@ -43,7 +46,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
 
             elif message["action"] == 2:  # Create Account
                 try:
-                    current_user = userDB.writeEntry(message["email"], message["name"], message["password"])
+                    current_user = userDB.create_account(message["email"], message["name"], message["password"])
                     response["success"] = True
                 except ValueError:
                     response["success"] = False
@@ -54,7 +57,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
 
             elif message["action"] == 4:  # Delete Account
                 try:
-                    userDB.deleteEntry(current_user, message["password"])
+                    userDB.delete_account(current_user.id, message["password"])
                     current_user = None
                     response["success"] = True
                 except IncorrectPasswordError:
@@ -86,9 +89,9 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 current_user = None
                 response["success"] = True
 
-            elif message["action"] == 11:
+            elif message["action"] == 11:  # Modify Account
                 try:
-                    current_user = userDB.modifyEntry(current_user, message["password"], message["modifications"])
+                    current_user = userDB.modify_account(current_user, message["password"], message["modifications"])
                 except IncorrectPasswordError:
                     response["success"] = False
                     response["message"] = "Incorrect email or password"
