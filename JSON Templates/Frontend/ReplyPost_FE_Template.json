@@ -1,4 +1,5 @@
 {
     "action": 15,
+    "post_id": "<id>",
     "text": "<text>"
 }
