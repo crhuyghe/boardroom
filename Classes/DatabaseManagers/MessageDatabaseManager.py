@@ -12,20 +12,20 @@ class MessageDatabaseManager:
         self.df_file = f"{self.wd}\\Database\\Messages.csv"
         self.df = pd.read_csv(self.df_file)
 
-    def readEntry(self):
+    def read_entry(self):
         """Takes arguments to locate a specified entry in the database"""
         print("hi")
 
 
-    def writeEntry(self):
+    def write_entry(self):
         """Takes arguments to write a new entry into the database"""
         print("hi")
 
-    def modifyEntry(self):
+    def modify_entry(self):
         """Takes arguments to modify an entry in the database"""
         print("hi")
 
-    def deleteEntry(self):
+    def delete_entry(self):
         print("hi")
 
     def __updateDF(self):
