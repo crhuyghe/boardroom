@@ -52,8 +52,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "AccountExistsError"
 
-            elif message["action"] == 3:
-                print("CreatePost")
+
+            elif message["action"] == 3:  # Create Post
+                boardroomDB.write_post(message["title"], message["tags"], message["text"], current_user)
+                response["success"] = True
 
             elif message["action"] == 4:  # Delete Account
                 try:

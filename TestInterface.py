@@ -15,9 +15,10 @@ class App(ThemedTk):
 
         self.title("Boardroom Test App")
 
-        self.actions = {1: ["", ""], 2: ["", "", ""], 3: ["", "", ""], 4: [""], 5: ["", ""], 6: ["", "", ""], 7: [""],
-                        8: [""], 9: ["", ""], 10: [], 11: ["", "", "", "", ""], 12: ["", "", ""], 13: ["", "", ""],
-                        14: [], 15: ["", ""], 16: ["", ""], 17: ["", ""], 18: [""], 19: ["", ""]}
+        self.actions = {1: ["cave.johnson@aperture.com", "IH8Lemons"], 2: ["", "", ""], 3: ["", "", ""], 4: [""],
+                        5: ["", ""], 6: ["", "", ""], 7: [""], 8: [""], 9: ["", ""], 10: [], 11: ["", "", "", "", ""],
+                        12: ["", "", ""], 13: ["", "", ""], 14: [], 15: ["", ""], 16: ["", ""], 17: ["", ""], 18: [""],
+                        19: ["", ""]}
         self.string_vars = [StringVar(value=""), StringVar(value=""), StringVar(value=""), StringVar(value=""),
                             StringVar(value="")]
         self.text_fields = []
@@ -109,8 +110,9 @@ class App(ThemedTk):
                 response["success"] = False
                 response["message"] = "AccountExistsError"
 
-        elif message["action"] == 3:
-            print("CreatePost")
+        elif message["action"] == 3:  # Create Post
+            boardroomDB.write_post(message["title"], message["tags"], message["text"], current_user)
+            response["success"] = True
 
         elif message["action"] == 4:  # Delete Account
             try:

@@ -1,1 +1,3 @@
-id,title,poster_id,view_count,like_count,text,post_time,is_edited
+id,title,poster_id,text,like_count,view_count,post_time,is_edited
+0,Post Title,0,post text,0,0,2023-11-03 13:11:32.541756,False
+1,Post Title 2,0,post text,0,0,2023-11-03 13:12:31.812848,False

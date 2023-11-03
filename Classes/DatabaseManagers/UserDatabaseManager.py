@@ -21,6 +21,9 @@ class UserDatabaseManager:
             raise KeyError
         self.__check_lockout(row.id.values[0])
         if self.__decrypt(password) == row.password.values[0]:
+            if self.df.loc[self.df['id'] == row.id.values[0], "login_attempts"].values[0] != 0:
+                self.df.loc[self.df['id'] == row.id.values[0], "login_attempts"] = 0
+                self.__updateDF()
             return User(row.id.values[0], row.email.values[0], row.name.values[0])
         else:
             self.__increment_lockout_counter(row.id.values[0])
