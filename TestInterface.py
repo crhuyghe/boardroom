@@ -170,8 +170,13 @@ class App(ThemedTk):
         elif message["action"] == 14:
             print("Refresh")
 
-        elif message["action"] == 15:
-            print("ReplyPost")
+        elif message["action"] == 15:  # Reply Post
+            try:
+                boardroomDB.write_post_reply(int(message["post_id"]), message["text"], current_user)
+                response["success"] = True
+            except ValueError:
+                response["success"] = False
+                response["message"] = "Post does not exist"
 
         elif message["action"] == 16:
             print("SearchPosts")

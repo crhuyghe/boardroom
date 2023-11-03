@@ -1,5 +1,6 @@
 import pandas as pd
 from Classes.Models.Boardroom import Boardroom
+from Classes.Models.Message import Message
 
 
 class BoardroomDatabaseManager:
@@ -25,12 +26,12 @@ class BoardroomDatabaseManager:
         self.tag_df = pd.read_csv(self.tag_df_file)
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
 
-    def read_entry(self):
+    def get_post(self):
         """Takes arguments to locate a specified entry in the database"""
         print("hi")
 
     def write_post(self, title, tags: list, text, current_user):
-        """Takes arguments to write a new entry into the database"""
+        """Takes a title, tags, and text as well as the current user in order to add a new post to the database"""
         tag_ids = self.find_tags(tags)
         if len(self.df) == 0:
             new_boardroom = Boardroom(0, current_user, title, tag_ids, text, 0, 0, False)
@@ -41,6 +42,23 @@ class BoardroomDatabaseManager:
         self.link_tags(tag_ids, new_boardroom.id)
         self.__update_posts()
         return new_boardroom
+
+    def write_post_reply(self, post_id, text, current_user):
+        if len(self.df) > post_id and self.df.iloc[post_id].title != "###DELETED###":
+            rows = self.reply_df.loc[self.reply_df["post_id"] == post_id].reply_id.values
+            if len(rows) != 0:
+                reply_id = rows[-1] + 1
+            else:
+                reply_id = 0
+            new_reply = Message(reply_id, current_user, post_id, text, False)
+            new_row = pd.DataFrame([new_reply.format_for_reply_dataframe()])
+            if len(self.reply_df) == 0:
+                self.reply_df = new_row
+            else:
+                self.reply_df = pd.concat((self.reply_df, new_row), ignore_index=False)
+            self.__update_replies()
+        else:
+            raise ValueError
 
     def find_tags(self, tags):
         """returns a list of ids for the input list of tags; adds tags to database if not already present."""

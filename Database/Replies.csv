@@ -1,1 +1,1 @@
-id,boardroom_id,poster_id,text,like_count,post_time,is_edited
+reply_id,post_id,poster_id,text,like_count,post_time,is_edited
