@@ -9,6 +9,7 @@ from websockets import server
 # MessageDB = DatabaseReader("message")
 
 decoder = json.JSONDecoder()
+encoder = json.JSONEncoder()
 
 # In the current state, hosts a localhost websocket on port 8765.
 # This connection accepts messages from the client and echoes them back.
@@ -58,7 +59,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 print("SendMessage")
 
             print(message)
-            await websocket.send(message)
+            await websocket.send(encoder.encode(message))
 
     except ws.ConnectionClosedOK:
         print("Client disconnected:", websocket.id)
