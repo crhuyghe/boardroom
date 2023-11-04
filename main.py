@@ -78,8 +78,31 @@ async def connection(websocket: server.WebSocketServerProtocol):
             elif message["action"] == 6:
                 print("EditMessage")
 
-            elif message["action"] == 7:
-                print("GetPost")
+            elif message["action"] == 7:  # Get Post
+                try:
+                    post, post_time = boardroomDB.get_post(int(message["post_id"]), userDB)
+                    response["success"] = True
+                    response["post_title"] = post.title
+                    response["post_id"] = post.id
+                    response["post_creator"] = post.poster.format_for_response()
+                    response["post_likes"] = post.likes
+                    response["post_views"] = post.views
+                    response["post_text"] = post.text
+                    response["post_tags"] = post.tags
+                    response["post_time"] = str(post_time)
+                    response["post_is_edited"] = post.edited
+                    response["post_replies"] = []
+                    for reply, like_count, reply_time in boardroomDB.get_post_replies(post.id, userDB):
+                        formatted_reply = {"reply_likes": like_count,
+                                           "reply_text": reply.text,
+                                           "reply_is_edited": reply.edited,
+                                           "reply_id": reply.id,
+                                           "reply_creator": reply.sender.format_for_response(),
+                                           "reply_time": str(reply_time)}
+                        response["post_replies"].append(formatted_reply)
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "Post not found"
 
             elif message["action"] == 8:
                 print("LikePost")

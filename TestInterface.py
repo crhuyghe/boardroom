@@ -137,7 +137,7 @@ class App(ThemedTk):
         elif message["action"] == 6:
             print("EditMessage")
 
-        elif message["action"] == 7:
+        elif message["action"] == 7:  # Get Post
             try:
                 post, post_time = boardroomDB.get_post(int(message["post_id"]), userDB)
                 response["success"] = True
