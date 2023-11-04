@@ -5,12 +5,13 @@
     "post_creator": {
         "name": "<name>",
         "email": "<email>",
-        "picture": "<picture>",
+        "picture": "<picture> or false",
         "id": "<id>"
     },
     "post_likes": "<like_count>",
     "post_views": "<view_count>",
     "post_text": "<text>",
+    "post_tags": [],
     "post_time": "<time_posted>",
     "post_is_edited": "True or False",
     "post_replies": [
@@ -22,7 +23,7 @@
             "reply_creator": {
                 "name": "<name>",
                 "email": "<email>",
-                "picture": "<picture>",
+                "picture": "<picture> or false",
                 "id": "<id>"
             },
             "reply_time": "<time_posted>"
@@ -35,7 +36,7 @@
             "reply_creator": {
                 "name": "<name>",
                 "email": "<email>",
-                "picture": "<picture>",
+                "picture": "<picture> or false",
                 "id": "<id>"
             },
             "reply_time": "<time_posted>"
