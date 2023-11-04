@@ -2,15 +2,15 @@ import pandas as pd
 
 # Discussion board
 class Boardroom:
-    def __init__(self, post_id, poster, title, tags, text, views, likes, edited):
-        self.id = post_id
+    def __init__(self, post_id: int, poster, title: str, tags: list, text: str, views: int, likes: int, edited: bool):
+        self.id = int(post_id)
         self.poster = poster
         self.title = title
         self.tags = tags
         self.text = text
-        self.views = views
-        self.likes = likes
-        self.edited = edited
+        self.views = int(views)
+        self.likes = int(likes)
+        self.edited = bool(edited)
 
     def format_for_dataframe(self, time_created=None):
         if time_created is None:

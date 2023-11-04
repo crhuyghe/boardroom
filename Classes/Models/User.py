@@ -6,10 +6,13 @@ class User:
     name = ""
     picture = ""
 
-    def __init__(self, user_id, email, name):
-        self.id = user_id
+    def __init__(self, user_id: int, email: str, name: str):
+        self.id = int(user_id)
         self.email = email
         self.name = name
+
+    def format_for_response(self):
+        return {"name": self.name, "email": self.email, "picture": self.picture, "id": self.id}
 
     def format_with_password(self, password, time_created=None, login_attempts=0):
         if time_created is None:

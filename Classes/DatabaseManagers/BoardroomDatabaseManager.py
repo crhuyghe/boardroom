@@ -1,6 +1,7 @@
 import pandas as pd
 from Classes.Models.Boardroom import Boardroom
 from Classes.Models.Message import Message
+from Classes.Models.User import User
 
 
 class BoardroomDatabaseManager:
@@ -26,9 +27,38 @@ class BoardroomDatabaseManager:
         self.tag_df = pd.read_csv(self.tag_df_file)
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
 
-    def get_post(self):
+    def get_post(self, post_id, userDB):
         """Takes arguments to locate a specified entry in the database"""
-        print("hi")
+        if len(self.df) > post_id and self.df.iloc[post_id].title != "###DELETED###":
+            post = self.df.iloc[post_id]
+            search_row = userDB.search("id", post.poster_id)
+            post_creator = User(search_row.id.values[0], search_row.email.values[0], search_row.name.values[0])
+            if str(search_row.picture_link.values[0]) != "nan":
+                post_creator.picture = search_row.picture_link.values[0]
+            else:
+                post_creator.picture = False
+            return Boardroom(post.id, post_creator, post.title, self.get_post_tags(post.id), post.text,
+                             post.view_count, post.like_count, post.is_edited), post.post_time
+        else:
+            raise ValueError
+
+    def get_post_replies(self, post_id, userDB) -> list[tuple[Message, int, pd.Timestamp]]:
+        replies = []
+
+        rows = self.reply_df.loc[self.reply_df["post_id"] == post_id]
+
+        for i in range(len(rows)):
+            row = rows.iloc[i]
+            search_row = userDB.search("id", row.poster_id)
+            reply_creator = User(search_row.id.values[0], search_row.email.values[0], search_row.name.values[0])
+            if str(search_row.picture_link.values[0]) != "nan":
+                reply_creator.picture = search_row.picture_link.values[0]
+            else:
+                reply_creator.picture = False
+            replies.append((Message(row.reply_id, reply_creator, post_id, row.text, row.is_edited),
+                            int(row.like_count), row.post_time))
+
+        return replies
 
     def write_post(self, title, tags: list, text, current_user):
         """Takes a title, tags, and text as well as the current user in order to add a new post to the database"""
@@ -59,6 +89,16 @@ class BoardroomDatabaseManager:
             self.__update_replies()
         else:
             raise ValueError
+
+    def get_post_tags(self, post_id):
+        linked_rows = self.post_tag_df.loc[self.post_tag_df["post_id"] == post_id]
+        tag_ids = []
+        tags = []
+        for i in range(len(linked_rows)):
+            tag_ids.append(linked_rows.tag_id.values[i])
+        for tag_id in tag_ids:
+            tags.append(self.tag_df.iloc[tag_id].tag)
+        return tags
 
     def find_tags(self, tags):
         """returns a list of ids for the input list of tags; adds tags to database if not already present."""
