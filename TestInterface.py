@@ -221,9 +221,7 @@ class App(ThemedTk):
         else:
             self.user_label_text.set("No User Logged In")
 
-        print(response)
-        print(encoder.encode(response))
-        # self.response_label_text.set(encoder.encode(response))
+        self.response_label_text.set(encoder.encode(response))
 
 
 
