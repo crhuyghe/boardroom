@@ -7,14 +7,6 @@ from Classes.Models.User import User
 class BoardroomDatabaseManager:
     wd = __file__[:str(__file__).rindex("\\")][:__file__[:str(__file__).rindex("\\")].rindex("\\")][
          :__file__[:str(__file__).rindex("\\")][:__file__[:str(__file__).rindex("\\")].rindex("\\")].rindex("\\")]
-    df = None
-    df_file = ""
-    reply_df = None
-    reply_df_file = ""
-    tag_df = None
-    tag_df_file = ""
-    post_tag_df = None
-    post_tag_df_file = ""
 
     def __init__(self):
         """Controls functionality for reading the boardroom databases."""
@@ -22,27 +14,34 @@ class BoardroomDatabaseManager:
         self.reply_df_file = f"{self.wd}\\Database\\Replies.csv"
         self.tag_df_file = f"{self.wd}\\Database\\Tags.csv"
         self.post_tag_df_file = f"{self.wd}\\Database\\PostsToTags.csv"
+        self.like_df_file = f"{self.wd}\\Database\\Likes.csv"
         self.df = pd.read_csv(self.df_file)
         self.reply_df = pd.read_csv(self.reply_df_file)
         self.tag_df = pd.read_csv(self.tag_df_file)
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
+        self.like_df = pd.read_csv(self.like_df_file)
 
-    def get_post(self, post_id, userDB):
+    def get_post(self, post_id, userDB, current_user):
         """Takes arguments to locate a specified entry in the database"""
         if len(self.df) > post_id and self.df.iloc[post_id].title != "###DELETED###":
             post = self.df.iloc[post_id]
+            if current_user.id != int(post.poster_id):
+                self.df.loc[self.df['id'] == post_id, "view_count"] += 1
+                post = self.df.iloc[post_id]
+                self.__update_posts()
             search_row = userDB.search("id", post.poster_id)
             post_creator = User(search_row.id.values[0], search_row.email.values[0], search_row.name.values[0])
             if str(search_row.picture_link.values[0]) != "nan":
                 post_creator.picture = search_row.picture_link.values[0]
             else:
                 post_creator.picture = False
+            likes, is_liked = self.get_likes(current_user, post_id)
             return Boardroom(post.id, post_creator, post.title, self.get_post_tags(post.id), post.text,
-                             post.view_count, post.like_count, post.is_edited), post.post_time
+                             post.view_count, likes, post.is_edited), post.post_time, is_liked
         else:
             raise ValueError
 
-    def get_post_replies(self, post_id, userDB) -> list[tuple[Message, int, pd.Timestamp]]:
+    def get_post_replies(self, post_id, userDB, current_user) -> list[tuple[Message, int, pd.Timestamp, bool]]:
         replies = []
 
         rows = self.reply_df.loc[self.reply_df["post_id"] == post_id]
@@ -55,8 +54,9 @@ class BoardroomDatabaseManager:
                 reply_creator.picture = search_row.picture_link.values[0]
             else:
                 reply_creator.picture = False
+            likes, is_liked = self.get_likes(current_user, post_id, i)
             replies.append((Message(row.reply_id, reply_creator, post_id, row.text, row.is_edited),
-                            int(row.like_count), row.post_time))
+                            likes, row.post_time, is_liked))
 
         return replies
 
@@ -64,10 +64,10 @@ class BoardroomDatabaseManager:
         """Takes a title, tags, and text as well as the current user in order to add a new post to the database"""
         tag_ids = self.find_tags(tags)
         if len(self.df) == 0:
-            new_boardroom = Boardroom(0, current_user, title, tag_ids, text, 0, 0, False)
+            new_boardroom = Boardroom(0, current_user, title, tag_ids, text, 0, False)
             self.df = pd.DataFrame([new_boardroom.format_for_dataframe()])
         else:
-            new_boardroom = Boardroom(self.df["id"].iloc[-1] + 1, current_user, title, tag_ids, text, 0, 0, False)
+            new_boardroom = Boardroom(self.df["id"].iloc[-1] + 1, current_user, title, tag_ids, text, 0, False)
             self.df = pd.concat((self.df, pd.DataFrame([new_boardroom.format_for_dataframe()])), ignore_index=False)
         self.link_tags(tag_ids, new_boardroom.id)
         self.__update_posts()
@@ -89,6 +89,25 @@ class BoardroomDatabaseManager:
             self.__update_replies()
         else:
             raise ValueError
+
+    def like_entry(self, current_user, post_id, reply_id=-1):
+        """Increases the like count of a post or reply if the user has not already liked it"""
+        if len(self.like_df.loc[(self.like_df["user_id"] == current_user.id) & (self.like_df["post_id"] == post_id) &
+                                (self.like_df["reply_id"] == reply_id)]) == 0:
+            if len(self.like_df) == 0:
+                self.like_df = pd.DataFrame([{"user_id": current_user.id, "post_id": post_id, "reply_id": reply_id}])
+            else:
+                self.like_df = pd.concat((self.like_df, pd.DataFrame([{"user_id": current_user.id, "post_id": post_id,
+                                                                       "reply_id": reply_id}])), ignore_index=False)
+            self.like_df.to_csv(self.like_df_file, index=False)
+            self.__update_posts()
+        else:
+            raise ValueError
+
+    def get_likes(self, current_user, post_id, reply_id=-1):
+        """Detects how many likes a given post or reply has along with whether the current user has liked it"""
+        rows = self.like_df.loc[(self.like_df["post_id"] == post_id) & (self.like_df["reply_id"] == reply_id)]
+        return len(rows), len(rows.loc[rows["user_id"] == current_user.id]) == 1
 
     def get_post_tags(self, post_id):
         linked_rows = self.post_tag_df.loc[self.post_tag_df["post_id"] == post_id]

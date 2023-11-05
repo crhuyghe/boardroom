@@ -139,7 +139,7 @@ class App(ThemedTk):
 
         elif message["action"] == 7:  # Get Post
             try:
-                post, post_time = boardroomDB.get_post(int(message["post_id"]), userDB)
+                post, post_time, is_liked = boardroomDB.get_post(int(message["post_id"]), userDB, current_user)
                 response["success"] = True
                 response["post_title"] = post.title
                 response["post_id"] = post.id
@@ -149,11 +149,14 @@ class App(ThemedTk):
                 response["post_text"] = post.text
                 response["post_tags"] = post.tags
                 response["post_time"] = str(post_time)
+                response["post_is_liked"] = is_liked
                 response["post_is_edited"] = post.edited
                 response["post_replies"] = []
-                for reply, like_count, reply_time in boardroomDB.get_post_replies(post.id, userDB):
+                for reply, like_count, reply_time, is_liked in boardroomDB.get_post_replies(post.id, userDB,
+                                                                                            current_user):
                     formatted_reply = {"reply_likes": like_count,
                                        "reply_text": reply.text,
+                                       "reply_is_liked": is_liked,
                                        "reply_is_edited": reply.edited,
                                        "reply_id": reply.id,
                                        "reply_creator": reply.sender.format_for_response(),
@@ -163,11 +166,21 @@ class App(ThemedTk):
                 response["success"] = False
                 response["message"] = "Post not found"
 
-        elif message["action"] == 8:
-            print("LikePost")
+        elif message["action"] == 8:  # like post
+            try:
+                boardroomDB.like_entry(current_user, int(message["post_id"]))
+                response["success"] = True
+            except ValueError:
+                response["success"] = False
+                response["message"] = "User already liked post"
 
-        elif message["action"] == 9:
-            print("LikePostReply")
+        elif message["action"] == 9:  # like post reply
+            try:
+                boardroomDB.like_entry(current_user, int(message["post_id"]), int(message["reply_id"]))
+                response["success"] = True
+            except ValueError:
+                response["success"] = False
+                response["message"] = "User already liked reply"
 
         elif message["action"] == 10:  # Logout Account
             current_user = None
