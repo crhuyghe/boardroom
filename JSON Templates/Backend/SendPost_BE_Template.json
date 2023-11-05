@@ -13,11 +13,13 @@
     "post_text": "<text>",
     "post_tags": [],
     "post_time": "<time_posted>",
+    "post_is_liked": "True or False",
     "post_is_edited": "True or False",
     "post_replies": [
         {
             "reply_likes": "<like_count>",
             "reply_text": "<text>",
+            "reply_is_liked": "True or False",
             "reply_is_edited": "True or False",
             "reply_id": 0,
             "reply_creator": {
@@ -31,6 +33,7 @@
         {
             "reply_likes": "<like_count>",
             "reply_text": "<text>",
+            "reply_is_liked": "True or False",
             "reply_is_edited": "True or False",
             "reply_id": 1,
             "reply_creator": {
