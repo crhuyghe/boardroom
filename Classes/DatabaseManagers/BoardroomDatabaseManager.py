@@ -1,5 +1,7 @@
 import pandas as pd
 from numpy import nan
+import heapq
+import re
 
 from Classes.Models.Boardroom import Boardroom
 from Classes.Models.Message import Message
@@ -22,6 +24,45 @@ class BoardroomDatabaseManager:
         self.tag_df = pd.read_csv(self.tag_df_file)
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
         self.like_df = pd.read_csv(self.like_df_file)
+
+    def search_posts(self, keywords: str, tags: list):
+        weights = []
+        tag_ids = []
+        keywords = keywords.split(" ")
+        if '' in keywords:
+            keywords.remove('')
+        if '' in tags:
+            tags.remove('')
+        for i in range(len(self.df)):
+            weights.append([i, 0])
+        for tag in tags:
+            tag_ids.append(self.tag_df.loc[self.tag_df["tag"] == tag, "id"].values[0])
+        for tag_id in tag_ids:
+            matches = self.post_tag_df.loc[self.post_tag_df["tag_id"] == tag_id, "post_id"].values
+            for match in matches:
+                weights[match][1] += 10
+        for word in keywords:
+            for index, row in self.df.iterrows():
+                if not pd.isna(row.title):
+                    weights[int(row.id)][1] += str(row.title).count(word) * 5 + str(row.text).count(word) * 2
+        closest_matches = heapq.nlargest(min(20, len(self.df)), weights, key=lambda x: x[1])
+        index = 0
+        while index < len(closest_matches) and closest_matches[index][1] != 0:
+            index += 1
+        print(weights, closest_matches)
+        closest_matches = closest_matches[:index]
+        print(closest_matches)
+        results = []
+
+        for i in range(len(closest_matches)):
+            row = self.df.iloc[i]
+            results.append((row.title, int(row.poster_id), int(row.id),
+                            len(self.like_df.loc[
+                                    (self.like_df["post_id"] == int(row.id)) & (self.like_df["reply_id"] == -1)]),
+                            int(row.view_count), str(row.post_time),
+                            len(self.reply_df.loc[self.reply_df["post_id"] == int(row.id)])))
+        return results
+
 
     def get_post(self, post_id, current_user):
         """Takes arguments to locate a specified entry in the database"""
@@ -244,10 +285,6 @@ class BoardroomDatabaseManager:
         else:
             self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries)), ignore_index=False)
         self.__update_post_tags()
-
-    def modify_entry(self):
-        """Takes arguments to modify an entry in the database"""
-        print("hi")
 
     def __update_posts(self):
         """Writes current post database to file"""

@@ -199,8 +199,18 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "Post does not exist"
 
+
             elif message["action"] == 16:
-                print("SearchPosts")
+                results = boardroomDB.search_posts(message["keywords"], message["tags"])
+                response["success"] = True
+                response["posts"] = []
+                for vals in results:
+                    formatted_post = {"post_title": vals[0],
+                                      "post_creator": userDB.get_user(vals[1]).format_for_response(),
+                                      "post_id": vals[2],
+                                      "post_likes": vals[3], "post_views": vals[4], "post_time": vals[5],
+                                      "post_replies": vals[6]}
+                    response["posts"].append(formatted_post)
 
             elif message["action"] == 17:  # Delete Post Reply
                 try:
