@@ -85,6 +85,19 @@ class UserDatabaseManager:
         else:
             self.__increment_lockout_counter(int(row.id))
 
+    def get_user(self, user_id):
+        search_row = self.search("id", user_id)
+        if pd.isna(search_row.email):
+            post_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
+            post_creator.picture = False
+        else:
+            post_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
+            if pd.isna(search_row.picture_link):
+                post_creator.picture = False
+            else:
+                post_creator.picture = str(search_row.picture_link)
+        return post_creator
+
     def search(self, column, search_term):
         """Allows searching for users based on a given database value. Email and ID are always unique"""
         if column == "id":

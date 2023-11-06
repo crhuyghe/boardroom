@@ -23,7 +23,7 @@ class BoardroomDatabaseManager:
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
         self.like_df = pd.read_csv(self.like_df_file)
 
-    def get_post(self, post_id, userDB, current_user):
+    def get_post(self, post_id, current_user):
         """Takes arguments to locate a specified entry in the database"""
         if len(self.df) > post_id and not pd.isna(self.df.iloc[post_id].title):
             post = self.df.iloc[post_id]
@@ -31,23 +31,13 @@ class BoardroomDatabaseManager:
                 self.df.loc[self.df['id'] == post_id, "view_count"] += 1
                 post = self.df.iloc[post_id]
                 self.__update_posts()
-            search_row = userDB.search("id", post.poster_id)
-            if pd.isna(search_row.email):
-                post_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
-                post_creator.picture = False
-            else:
-                post_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
-                if pd.isna(search_row.picture_link):
-                    post_creator.picture = False
-                else:
-                    post_creator.picture = str(search_row.picture_link)
             likes, is_liked = self.get_likes(current_user, post_id)
-            return Boardroom(post.id, post_creator, post.title, self.get_post_tags(post.id), post.text,
+            return Boardroom(post.id, int(post.poster_id), post.title, self.get_post_tags(post.id), post.text,
                              post.view_count, likes, post.is_edited), post.post_time, is_liked
         else:
             raise ValueError
 
-    def get_post_replies(self, post_id, userDB, current_user) -> list[tuple[Message, int, pd.Timestamp, bool]]:
+    def get_post_replies(self, post_id, current_user) -> list[tuple[Message, int, pd.Timestamp, bool]]:
         replies = []
 
         rows = self.reply_df.loc[self.reply_df["post_id"] == post_id]
@@ -55,18 +45,8 @@ class BoardroomDatabaseManager:
         for i in range(len(rows)):
             row = rows.iloc[i]
             if not pd.isna(row.poster_id):
-                search_row = userDB.search("id", row.poster_id)
-                if pd.isna(search_row.email):
-                    reply_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
-                    reply_creator.picture = False
-                else:
-                    reply_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
-                    if pd.isna(search_row.picture_link):
-                        reply_creator.picture = False
-                    else:
-                        reply_creator.picture = str(search_row.picture_link)
                 likes, is_liked = self.get_likes(current_user, post_id, i)
-                replies.append((Message(row.reply_id, reply_creator, post_id, row.text, row.is_edited),
+                replies.append((Message(row.reply_id, int(row.poster_id), post_id, row.text, row.is_edited),
                                 likes, row.post_time, is_liked))
 
         return replies
