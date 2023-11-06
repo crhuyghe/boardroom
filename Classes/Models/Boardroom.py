@@ -16,6 +16,5 @@ class Boardroom:
         if time_created is None:
             time_created = pd.Timestamp.now()
         return {"id": self.id, "title": self.title, "poster_id": self.poster.id, "text": self.text,
-                "like_count": self.likes, "view_count": self.views, "post_time": time_created,
-                "is_edited": self.edited}
+                "view_count": self.views, "post_time": time_created, "is_edited": self.edited}
 

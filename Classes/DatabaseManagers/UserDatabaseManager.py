@@ -1,6 +1,7 @@
 import pandas as pd
 from Classes.Models.User import User
 from Classes.Errors import IncorrectPasswordError, AccountLockoutError
+from numpy import nan
 
 class UserDatabaseManager:
     wd = __file__[:str(__file__).rindex("\\")][:__file__[:str(__file__).rindex("\\")].rindex("\\")][
@@ -11,7 +12,7 @@ class UserDatabaseManager:
     def __init__(self):
         """Controls functionality for reading the user database."""
         self.df_file = f"{self.wd}\\Database\\Users.csv"
-        self.df = pd.read_csv(self.df_file)
+        self.df = pd.read_csv(self.df_file, dtype={"login_attempts": "Int8"})
 
     def login_account(self, email, password):
         """Takes the email and password for an account. Checks for the existence of account, and verifies the\nvalidity
@@ -37,6 +38,7 @@ class UserDatabaseManager:
         if len(self.df) == 0:
             new_user = User(0, email, name)
             self.df = pd.DataFrame([new_user.format_with_password(self.__decrypt(password))])
+            self.df["login_attempts"].astype("Int8")
         else:
             new_user = User(self.df["id"].iloc[-1] + 1, email, name)
             self.df = pd.concat((self.df,
@@ -48,8 +50,8 @@ class UserDatabaseManager:
         """Takes a user_id, password, and a list of modifications. Verifies password, and makes necessary changes to\n
         the database."""
         row = self.search("id", user_id)
-        self.__check_lockout(row.id.values[0])
-        if self.__decrypt(password) == row.password.values[0]:
+        self.__check_lockout(int(row.id))
+        if self.__decrypt(password) == str(row.password):
             if modifications["picture"] is not False:
                 self.df.loc[self.df['id'] == user_id, "picture_link"] = modifications["picture"]
             if modifications["email"] is not False:
@@ -61,22 +63,32 @@ class UserDatabaseManager:
             self.__updateDF()
 
             row = self.search("id", user_id)
-            return User(row.id.values[0], row.email.values[0], row.name.values[0])
+            return User(int(row.id), str(row.email), str(row.name))
         else:
-            self.__increment_lockout_counter(row.id.values[0])
+            self.__increment_lockout_counter(int(row.id))
 
-    def delete_account(self, user_id, password):
-        """Takes a user id and password and deletes the account, if the password is correct."""
+    def delete_account(self, user_id, password, boardroomDB):
+        """Takes a user id and password and deletes the account and their posts, if the password is correct."""
         row = self.search("id", user_id)
-        self.__check_lockout(row.id.values[0])
-        if self.__decrypt(password) == row.password.values[0]:
-            self.df.drop(self.df[self.df["id"] == user_id].index, inplace=True)
+        self.__check_lockout(int(row.id))
+        if self.__decrypt(password) == str(row.password):
+            # self.df.drop(self.df[self.df["id"] == user_id].index, inplace=True)
+            self.df.iloc[user_id, 1] = nan
+            self.df.iloc[user_id, 2] = nan
+            self.df.iloc[user_id, 3] = nan
+            self.df.iloc[user_id, 4] = nan
+            self.df.iloc[user_id, 5] = nan
+            self.df.iloc[user_id, 6] = nan
             self.__updateDF()
+
+            boardroomDB.clear_activity(user_id)
         else:
-            self.__increment_lockout_counter(row.id.values[0])
+            self.__increment_lockout_counter(int(row.id))
 
     def search(self, column, search_term):
         """Allows searching for users based on a given database value. Email and ID are always unique"""
+        if column == "id":
+            return self.df.iloc[search_term]
         return self.df.loc[self.df[column] == search_term]
 
     def __updateDF(self):
@@ -91,7 +103,7 @@ class UserDatabaseManager:
         raise IncorrectPasswordError
 
     def __check_lockout(self, user_id):
-        if self.search("id", user_id).login_attempts.values[0] == 3:
+        if int(self.search("id", user_id).login_attempts) == 3:
             raise AccountLockoutError
 
     @staticmethod

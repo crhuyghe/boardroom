@@ -1,4 +1,6 @@
 import pandas as pd
+from numpy import nan
+
 from Classes.Models.Boardroom import Boardroom
 from Classes.Models.Message import Message
 from Classes.Models.User import User
@@ -15,26 +17,30 @@ class BoardroomDatabaseManager:
         self.tag_df_file = f"{self.wd}\\Database\\Tags.csv"
         self.post_tag_df_file = f"{self.wd}\\Database\\PostsToTags.csv"
         self.like_df_file = f"{self.wd}\\Database\\Likes.csv"
-        self.df = pd.read_csv(self.df_file)
-        self.reply_df = pd.read_csv(self.reply_df_file)
+        self.df = pd.read_csv(self.df_file, dtype={"poster_id": "Int64", "view_count": "Int64"})
+        self.reply_df = pd.read_csv(self.reply_df_file, dtype={"poster_id": "Int64"})
         self.tag_df = pd.read_csv(self.tag_df_file)
         self.post_tag_df = pd.read_csv(self.post_tag_df_file)
         self.like_df = pd.read_csv(self.like_df_file)
 
     def get_post(self, post_id, userDB, current_user):
         """Takes arguments to locate a specified entry in the database"""
-        if len(self.df) > post_id and self.df.iloc[post_id].title != "###DELETED###":
+        if len(self.df) > post_id and not pd.isna(self.df.iloc[post_id].title):
             post = self.df.iloc[post_id]
             if current_user.id != int(post.poster_id):
                 self.df.loc[self.df['id'] == post_id, "view_count"] += 1
                 post = self.df.iloc[post_id]
                 self.__update_posts()
             search_row = userDB.search("id", post.poster_id)
-            post_creator = User(search_row.id.values[0], search_row.email.values[0], search_row.name.values[0])
-            if str(search_row.picture_link.values[0]) != "nan":
-                post_creator.picture = search_row.picture_link.values[0]
-            else:
+            if pd.isna(search_row.email):
+                post_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
                 post_creator.picture = False
+            else:
+                post_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
+                if pd.isna(search_row.picture_link):
+                    post_creator.picture = False
+                else:
+                    post_creator.picture = str(search_row.picture_link)
             likes, is_liked = self.get_likes(current_user, post_id)
             return Boardroom(post.id, post_creator, post.title, self.get_post_tags(post.id), post.text,
                              post.view_count, likes, post.is_edited), post.post_time, is_liked
@@ -48,15 +54,20 @@ class BoardroomDatabaseManager:
 
         for i in range(len(rows)):
             row = rows.iloc[i]
-            search_row = userDB.search("id", row.poster_id)
-            reply_creator = User(search_row.id.values[0], search_row.email.values[0], search_row.name.values[0])
-            if str(search_row.picture_link.values[0]) != "nan":
-                reply_creator.picture = search_row.picture_link.values[0]
-            else:
-                reply_creator.picture = False
-            likes, is_liked = self.get_likes(current_user, post_id, i)
-            replies.append((Message(row.reply_id, reply_creator, post_id, row.text, row.is_edited),
-                            likes, row.post_time, is_liked))
+            if not pd.isna(row.poster_id):
+                search_row = userDB.search("id", row.poster_id)
+                if pd.isna(search_row.email):
+                    reply_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
+                    reply_creator.picture = False
+                else:
+                    reply_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
+                    if pd.isna(search_row.picture_link):
+                        reply_creator.picture = False
+                    else:
+                        reply_creator.picture = str(search_row.picture_link)
+                likes, is_liked = self.get_likes(current_user, post_id, i)
+                replies.append((Message(row.reply_id, reply_creator, post_id, row.text, row.is_edited),
+                                likes, row.post_time, is_liked))
 
         return replies
 
@@ -64,10 +75,10 @@ class BoardroomDatabaseManager:
         """Takes a title, tags, and text as well as the current user in order to add a new post to the database"""
         tag_ids = self.find_tags(tags)
         if len(self.df) == 0:
-            new_boardroom = Boardroom(0, current_user, title, tag_ids, text, 0, False)
+            new_boardroom = Boardroom(0, current_user, title, tag_ids, text, 0, 0, False)
             self.df = pd.DataFrame([new_boardroom.format_for_dataframe()])
         else:
-            new_boardroom = Boardroom(self.df["id"].iloc[-1] + 1, current_user, title, tag_ids, text, 0, False)
+            new_boardroom = Boardroom(self.df["id"].iloc[-1] + 1, current_user, title, tag_ids, text, 0, 0, False)
             self.df = pd.concat((self.df, pd.DataFrame([new_boardroom.format_for_dataframe()])), ignore_index=False)
         self.link_tags(tag_ids, new_boardroom.id)
         self.__update_posts()
@@ -90,8 +101,57 @@ class BoardroomDatabaseManager:
         else:
             raise ValueError
 
+    def delete_post(self, post_id, user_id):
+        if len(self.df) <= post_id:
+            raise ValueError
+        if self.df.iloc[post_id, 2] == user_id:
+            self.df.iloc[post_id, 1] = nan
+            self.df.iloc[post_id, 2] = nan
+            self.df.iloc[post_id, 3] = nan
+            self.df.iloc[post_id, 4] = nan
+            self.df.iloc[post_id, 5] = nan
+            self.df.iloc[post_id, 6] = False
+
+            self.reply_df.drop(self.reply_df[self.reply_df["post_id"] == post_id].index, inplace=True)
+            self.like_df.drop(self.like_df[self.like_df["post_id"] == post_id].index, inplace=True)
+            self.post_tag_df.drop(self.post_tag_df[self.post_tag_df["post_id"] == post_id].index, inplace=True)
+
+            self.__update_posts()
+            self.__update_replies()
+            self.__update_likes()
+            self.__update_post_tags()
+        else:
+            raise KeyError
+
+    def delete_post_reply(self, post_id, reply_id, user_id):
+        if len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id)]) == 0:
+            raise ValueError
+        if self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                          "poster_id"].values[0] == user_id:
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "poster_id"] = nan
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "text"] = nan
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "post_time"] = nan
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "is_edited"] = False
+            self.like_df.drop(self.like_df[(self.like_df["post_id"] == post_id) &
+                                           (self.like_df["reply_id"] == reply_id)].index, inplace=True)
+
+            self.__update_replies()
+            self.__update_likes()
+        else:
+            raise KeyError
+
     def like_entry(self, current_user, post_id, reply_id=-1):
         """Increases the like count of a post or reply if the user has not already liked it"""
+        post_nonexistent = len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title) or (reply_id != -1 and
+            (len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id)]) ==
+             0 or pd.isna(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] ==
+                                                                                reply_id), "poster_id"].values[0])))
+        if post_nonexistent:
+            raise KeyError
         if len(self.like_df.loc[(self.like_df["user_id"] == current_user.id) & (self.like_df["post_id"] == post_id) &
                                 (self.like_df["reply_id"] == reply_id)]) == 0:
             if len(self.like_df) == 0:
@@ -99,8 +159,7 @@ class BoardroomDatabaseManager:
             else:
                 self.like_df = pd.concat((self.like_df, pd.DataFrame([{"user_id": current_user.id, "post_id": post_id,
                                                                        "reply_id": reply_id}])), ignore_index=False)
-            self.like_df.to_csv(self.like_df_file, index=False)
-            self.__update_posts()
+            self.__update_likes()
         else:
             raise ValueError
 
@@ -108,6 +167,19 @@ class BoardroomDatabaseManager:
         """Detects how many likes a given post or reply has along with whether the current user has liked it"""
         rows = self.like_df.loc[(self.like_df["post_id"] == post_id) & (self.like_df["reply_id"] == reply_id)]
         return len(rows), len(rows.loc[rows["user_id"] == current_user.id]) == 1
+
+    def clear_activity(self, user_id):
+        """Clears the activity of a given user"""
+        for post_id in self.df.loc[self.df["poster_id"] == user_id, "id"].values:
+            self.delete_post(post_id, user_id)
+        for index, row in self.reply_df.loc[self.reply_df["poster_id"] == user_id].iterrows():
+            self.delete_post_reply(row.post_id, row.reply_id, user_id)
+
+        self.like_df.drop(self.like_df[self.like_df["user_id"] == user_id].index, inplace=True)
+
+        self.__update_posts()
+        self.__update_replies()
+        self.__update_likes()
 
     def get_post_tags(self, post_id):
         linked_rows = self.post_tag_df.loc[self.post_tag_df["post_id"] == post_id]
@@ -153,13 +225,10 @@ class BoardroomDatabaseManager:
             self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries[1:])), ignore_index=False)
         else:
             self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries)), ignore_index=False)
-        self.post_tag_df.to_csv(self.post_tag_df_file, index=False)
+        self.__update_post_tags()
 
     def modify_entry(self):
         """Takes arguments to modify an entry in the database"""
-        print("hi")
-
-    def delete_entry(self):
         print("hi")
 
     def __update_posts(self):
@@ -173,3 +242,11 @@ class BoardroomDatabaseManager:
     def __update_tags(self):
         """Writes current tag database to file"""
         self.tag_df.to_csv(self.tag_df_file, index=False)
+
+    def __update_post_tags(self):
+        """Writes current post-tag database to file"""
+        self.post_tag_df.to_csv(self.post_tag_df_file, index=False)
+
+    def __update_likes(self):
+        """Writes current like database to file"""
+        self.like_df.to_csv(self.like_df_file, index=False)

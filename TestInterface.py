@@ -85,6 +85,11 @@ class App(ThemedTk):
 
         current_user = self.current_user
 
+        if current_user is None and (message["action"] != 1 and message["action"] != 2):
+            message["action"] = -1
+            response["success"] = False
+            response["message"] = "Must log in before other requests may be sent"
+
         if message["action"] == 1:  # Access Account
             try:
                 current_user = userDB.login_account(message["email"], message["password"])
@@ -118,7 +123,7 @@ class App(ThemedTk):
 
         elif message["action"] == 4:  # Delete Account
             try:
-                userDB.delete_account(current_user.id, message["password"])
+                userDB.delete_account(current_user.id, message["password"], boardroomDB)
                 current_user = None
                 response["success"] = True
             except IncorrectPasswordError:
@@ -173,6 +178,9 @@ class App(ThemedTk):
             except ValueError:
                 response["success"] = False
                 response["message"] = "User already liked post"
+            except KeyError:
+                response["success"] = False
+                response["message"] = "Post does not exist"
 
         elif message["action"] == 9:  # like post reply
             try:
@@ -181,6 +189,9 @@ class App(ThemedTk):
             except ValueError:
                 response["success"] = False
                 response["message"] = "User already liked reply"
+            except KeyError:
+                response["success"] = False
+                response["message"] = "Reply does not exist"
 
         elif message["action"] == 10:  # Logout Account
             current_user = None
@@ -219,11 +230,27 @@ class App(ThemedTk):
         elif message["action"] == 16:
             print("SearchPosts")
 
-        elif message["action"] == 17:
-            print("DeletePostReply")
+        elif message["action"] == 17:  # Delete Post Reply
+            try:
+                boardroomDB.delete_post_reply(int(message["post_id"]), int(message["reply_id"]), current_user.id)
+                response["success"] = True
+            except ValueError:
+                response["success"] = False
+                response["message"] = "Reply does not exist"
+            except KeyError:
+                response["success"] = False
+                response["message"] = "Current user does not have permission to delete this reply"
 
-        elif message["action"] == 18:
-            print("DeletePost")
+        elif message["action"] == 18:  # Delete Post
+            try:
+                boardroomDB.delete_post(int(message["post_id"]), current_user.id)
+                response["success"] = True
+            except ValueError:
+                response["success"] = False
+                response["message"] = "Post does not exist"
+            except KeyError:
+                response["success"] = False
+                response["message"] = "Current user does not have permission to delete this post"
 
         elif message["action"] == 19:
             print("SendMessage")
@@ -234,6 +261,7 @@ class App(ThemedTk):
         else:
             self.user_label_text.set("No User Logged In")
 
+        print(response)
         self.response_label_text.set(encoder.encode(response))
 
 
