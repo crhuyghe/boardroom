@@ -81,8 +81,41 @@ class BoardroomDatabaseManager:
         else:
             raise ValueError
 
+    def modify_post(self, post_id, modifications, user_id):
+        if len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title):
+            raise ValueError
+        if self.df.iloc[post_id, 2] == user_id:
+            if modifications["text"] is not False:
+                self.df.iloc[post_id, 3] = modifications["text"]
+                self.df.iloc[post_id, 6] = True
+                self.__update_posts()
+            if modifications["tags"] is not False:
+                self.post_tag_df.drop(self.post_tag_df[self.post_tag_df["post_id"] == post_id].index, inplace=True)
+                self.link_tags(self.find_tags(modifications["tags"]), post_id)
+        else:
+            raise KeyError
+
+    def modify_post_reply(self, post_id, reply_id, new_text, user_id):
+        post_nonexistent = len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title) or \
+                           len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) &
+                                                 (self.reply_df["reply_id"] == reply_id)]) == 0 or \
+                           pd.isna(self.reply_df.loc[(self.reply_df["post_id"] == post_id) &
+                                                     (self.reply_df["reply_id"] == reply_id), "poster_id"].values[0])
+        if post_nonexistent:
+            raise ValueError
+        if self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                             "poster_id"].values[0] == user_id:
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "text"] = new_text
+            self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
+                              "is_edited"] = True
+
+            self.__update_replies()
+        else:
+            raise KeyError
+
     def delete_post(self, post_id, user_id):
-        if len(self.df) <= post_id:
+        if len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title):
             raise ValueError
         if self.df.iloc[post_id, 2] == user_id:
             self.df.iloc[post_id, 1] = nan
@@ -104,7 +137,12 @@ class BoardroomDatabaseManager:
             raise KeyError
 
     def delete_post_reply(self, post_id, reply_id, user_id):
-        if len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id)]) == 0:
+        post_nonexistent = len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title) or \
+                           len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) &
+                                                 (self.reply_df["reply_id"] == reply_id)]) == 0 or \
+                           pd.isna(self.reply_df.loc[(self.reply_df["post_id"] == post_id) &
+                                                     (self.reply_df["reply_id"] == reply_id), "poster_id"].values[0])
+        if post_nonexistent:
             raise ValueError
         if self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id),
                           "poster_id"].values[0] == user_id:
@@ -131,7 +169,7 @@ class BoardroomDatabaseManager:
              0 or pd.isna(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] ==
                                                                                 reply_id), "poster_id"].values[0])))
         if post_nonexistent:
-            raise KeyError
+            raise ValueError
         if len(self.like_df.loc[(self.like_df["user_id"] == current_user.id) & (self.like_df["post_id"] == post_id) &
                                 (self.like_df["reply_id"] == reply_id)]) == 0:
             if len(self.like_df) == 0:
@@ -141,7 +179,7 @@ class BoardroomDatabaseManager:
                                                                        "reply_id": reply_id}])), ignore_index=False)
             self.__update_likes()
         else:
-            raise ValueError
+            raise KeyError
 
     def get_likes(self, current_user, post_id, reply_id=-1):
         """Detects how many likes a given post or reply has along with whether the current user has liked it"""

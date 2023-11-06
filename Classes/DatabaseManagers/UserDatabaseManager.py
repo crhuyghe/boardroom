@@ -89,7 +89,7 @@ class UserDatabaseManager:
             post_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")
             post_creator.picture = False
         else:
-            post_creator = User(int(search_row.id), str(search_row.email), str(search_row.name))
+            post_creator = User(int(search_row.id), str(search_row.email), str(search_row["name"]))
             if pd.isna(search_row.picture_link):
                 post_creator.picture = False
             else:

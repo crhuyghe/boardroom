@@ -36,12 +36,12 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = True
                 except KeyError:
                     response["success"] = False
-                    response["message"] = "Incorrect email or password"
+                    response["message"] = "Incorrect email"
                     response["account_found"] = False
                     response["lockout"] = False
                 except IncorrectPasswordError:
                     response["success"] = False
-                    response["message"] = "Incorrect email or password"
+                    response["message"] = "Incorrect password"
                     response["account_found"] = True
                     response["lockout"] = False
                 except AccountLockoutError:
@@ -55,11 +55,24 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = True
                 except ValueError:
                     response["success"] = False
-                    response["message"] = "AccountExistsError"
+                    response["message"] = "An account with this email already exists"
 
             elif message["action"] == 3:  # Create Post
-                boardroomDB.write_post(message["title"], message["tags"], message["text"], current_user)
+                new_post = boardroomDB.write_post(message["title"], message["tags"], message["text"], current_user)
+                post, post_time, is_liked = boardroomDB.get_post(new_post.id, current_user)
+                post.poster = userDB.get_user(post.poster)
                 response["success"] = True
+                response["post_title"] = post.title
+                response["post_id"] = post.id
+                response["post_creator"] = post.poster.format_for_response()
+                response["post_likes"] = post.likes
+                response["post_views"] = post.views
+                response["post_text"] = post.text
+                response["post_tags"] = post.tags
+                response["post_time"] = str(post_time)
+                response["post_is_liked"] = is_liked
+                response["post_is_edited"] = post.edited
+                response["post_replies"] = []
 
             elif message["action"] == 4:  # Delete Account
                 try:
@@ -117,10 +130,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 try:
                     boardroomDB.like_entry(current_user, int(message["post_id"]))
                     response["success"] = True
-                except ValueError:
+                except KeyError:
                     response["success"] = False
                     response["message"] = "User already liked post"
-                except KeyError:
+                except ValueError:
                     response["success"] = False
                     response["message"] = "Post does not exist"
 
@@ -128,10 +141,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 try:
                     boardroomDB.like_entry(current_user, int(message["post_id"]), int(message["reply_id"]))
                     response["success"] = True
-                except ValueError:
+                except KeyError:
                     response["success"] = False
                     response["message"] = "User already liked reply"
-                except KeyError:
+                except ValueError:
                     response["success"] = False
                     response["message"] = "Reply does not exist"
 
@@ -152,11 +165,28 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["message"] = "Exceeded maximum login attempts. Account is locked until tomorrow."
                     response["lockout"] = True
 
-            elif message["action"] == 12:
-                print("ModifyPost")
+            elif message["action"] == 12:  # Modify Post
+                try:
+                    boardroomDB.modify_post(int(message["post_id"]), message["modifications"], current_user.id)
+                    response["success"] = True
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "Post does not exist"
+                except KeyError:
+                    response["success"] = False
+                    response["message"] = "Current user does not have permission to modify this post"
 
-            elif message["action"] == 13:
-                print("ModifyPostReply")
+            elif message["action"] == 13:  # Modify Post Reply
+                try:
+                    boardroomDB.modify_post_reply(int(message["post_id"]), int(message["reply_id"]), message["text"],
+                                                  current_user.id)
+                    response["success"] = True
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "Reply does not exist"
+                except KeyError:
+                    response["success"] = False
+                    response["message"] = "Current user does not have permission to modify this reply"
 
             elif message["action"] == 14:
                 print("Refresh")
