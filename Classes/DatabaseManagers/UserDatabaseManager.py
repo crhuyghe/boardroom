@@ -67,7 +67,7 @@ class UserDatabaseManager:
         else:
             self.__increment_lockout_counter(int(row.id))
 
-    def delete_account(self, user_id, password, boardroomDB):
+    def delete_account(self, user_id, password):
         """Takes a user id and password and deletes the account and their posts, if the password is correct."""
         row = self.search("id", user_id)
         self.__check_lockout(int(row.id))
@@ -80,8 +80,6 @@ class UserDatabaseManager:
             self.df.iloc[user_id, 5] = nan
             self.df.iloc[user_id, 6] = nan
             self.__updateDF()
-
-            boardroomDB.clear_activity(user_id)
         else:
             self.__increment_lockout_counter(int(row.id))
 

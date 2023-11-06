@@ -63,7 +63,8 @@ async def connection(websocket: server.WebSocketServerProtocol):
 
             elif message["action"] == 4:  # Delete Account
                 try:
-                    userDB.delete_account(current_user.id, message["password"], boardroomDB)
+                    userDB.delete_account(current_user.id, message["password"])
+                    boardroomDB.clear_activity(current_user.id)
                     current_user = None
                     response["success"] = True
                 except IncorrectPasswordError:
