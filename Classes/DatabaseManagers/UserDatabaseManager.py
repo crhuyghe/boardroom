@@ -83,7 +83,8 @@ class UserDatabaseManager:
         else:
             self.__increment_lockout_counter(int(row.id))
 
-    def get_user(self, user_id):
+    def get_user_by_id(self, user_id):
+        """Takes a user id and gets a completed user object"""
         search_row = self.search("id", user_id)
         if pd.isna(search_row.email):
             post_creator = User(int(search_row.id), "[Deleted Account]", "[Deleted Account]")

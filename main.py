@@ -60,7 +60,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
             elif message["action"] == 3:  # Create Post
                 new_post = boardroomDB.write_post(message["title"], message["tags"], message["text"], current_user)
                 post, post_time, is_liked = boardroomDB.get_post(new_post.id, current_user)
-                post.poster = userDB.get_user(post.poster)
+                post.poster = userDB.get_user_by_id(post.poster)
                 response["success"] = True
                 response["post_title"] = post.title
                 response["post_id"] = post.id
@@ -99,7 +99,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
             elif message["action"] == 7:  # Get Post
                 try:
                     post, post_time, is_liked = boardroomDB.get_post(int(message["post_id"]), current_user)
-                    post.poster = userDB.get_user(post.poster)
+                    post.poster = userDB.get_user_by_id(post.poster)
                     response["success"] = True
                     response["post_title"] = post.title
                     response["post_id"] = post.id
@@ -113,7 +113,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["post_is_edited"] = post.edited
                     response["post_replies"] = []
                     for reply, like_count, reply_time, is_liked in boardroomDB.get_post_replies(post.id, current_user):
-                        reply.sender = userDB.get_user(reply.sender)
+                        reply.sender = userDB.get_user_by_id(reply.sender)
                         formatted_reply = {"reply_likes": like_count,
                                            "reply_text": reply.text,
                                            "reply_is_liked": is_liked,
@@ -206,7 +206,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 response["posts"] = []
                 for vals in results:
                     formatted_post = {"post_title": vals[0],
-                                      "post_creator": userDB.get_user(vals[1]).format_for_response(),
+                                      "post_creator": userDB.get_user_by_id(vals[1]).format_for_response(),
                                       "post_id": vals[2],
                                       "post_likes": vals[3], "post_views": vals[4], "post_time": vals[5],
                                       "post_replies": vals[6]}
@@ -234,8 +234,15 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "Current user does not have permission to delete this post"
 
-            elif message["action"] == 19:
-                print("SendMessage")
+            elif message["action"] == 19:  # Send Message
+                recipient = userDB.search("email", message["recipient"])
+                if len(recipient) == 1:
+                    direct_message = messageDB.write_message(int(recipient.id.values[0]), message["text"],
+                                                             current_user.id)
+                    response["success"] = True
+                else:
+                    response["success"] = False
+                    response["message"] = "User does not exist"
 
             print(message)
             await websocket.send(encoder.encode(response))
