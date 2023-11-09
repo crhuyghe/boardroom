@@ -20,7 +20,7 @@ class App(ThemedTk):
         self.actions = {1: ["cave.johnson@aperture.com", "IH8Lemons"], 2: ["", "", ""], 3: ["", "", ""], 4: [""],
                         5: ["", ""], 6: ["", "", ""], 7: [""], 8: [""], 9: ["", ""], 10: [], 11: ["", "", "", "", ""],
                         12: ["", "", ""], 13: ["", "", ""], 14: [], 15: ["", ""], 16: ["", ""], 17: ["", ""], 18: [""],
-                        19: ["", ""]}
+                        19: ["", ""], 20: [""], 21: []}
         self.string_vars = [StringVar(value=""), StringVar(value=""), StringVar(value=""), StringVar(value=""),
                             StringVar(value="")]
         self.text_fields = []
@@ -63,6 +63,8 @@ class App(ThemedTk):
         self.mode_menu.add_command(label="Delete Post Reply", command=lambda: self.update_text_fields(17))
         self.mode_menu.add_command(label="Delete Post", command=lambda: self.update_text_fields(18))
         self.mode_menu.add_command(label="Send Message", command=lambda: self.update_text_fields(19))
+        self.mode_menu.add_command(label="Get Messages", command=lambda: self.update_text_fields(20))
+        self.mode_menu.add_command(label="Get Conversations", command=lambda: self.update_text_fields(21))
 
         self.user_label.pack(side="top")
         self.mode_dropdown.pack(side="top")
@@ -301,6 +303,26 @@ class App(ThemedTk):
                 response["success"] = False
                 response["message"] = "User does not exist"
 
+        elif message["action"] == 20:
+            participant = userDB.search("email", message["participant_email"])
+            if len(participant) == 1:
+                participant = userDB.get_user_by_id(int(participant.id.values[0]))
+                direct_messages = messageDB.get_messages(participant.id, current_user.id)
+
+                response["success"] = True
+                response["recipient"] = participant.format_for_response()
+                response["messages"] = []
+                for message, post_time in direct_messages:
+                    response["messages"].append({"sender_message": message.sender == current_user.id,
+                                                 "text": message.text, "message_is_edited": message.edited,
+                                                 "id": message.id, "time": post_time})
+            else:
+                response["success"] = False
+                response["message"] = "User does not exist"
+
+        elif message["action"] == 21:
+            print("GetConversations")
+
         self.current_user = current_user
         if self.current_user:
             self.user_label_text.set(self.current_user.name)
@@ -395,6 +417,8 @@ class App(ThemedTk):
         elif self.current_action == 19:
             message["recipient"] = self.string_vars[0].get()
             message["text"] = self.string_vars[1].get()
+        elif self.current_action == 20:
+            message["participant_email"] = self.string_vars[0].get()
 
         return message
 
@@ -507,6 +531,9 @@ class App(ThemedTk):
                                      ttk.Entry(self.argument_frame, textvariable=self.string_vars[0])))
             self.text_fields.append((ttk.Label(self.argument_frame, text="Text"),
                                      ttk.Entry(self.argument_frame, textvariable=self.string_vars[1])))
+        elif action == 20:
+            self.text_fields.append((ttk.Label(self.argument_frame, text="Participant Email"),
+                                     ttk.Entry(self.argument_frame, textvariable=self.string_vars[0])))
 
         for i in range(len(self.text_fields)):
             self.text_fields[i][0].grid(row=i, column=0, sticky='E')

@@ -1,4 +1,4 @@
 sender_id,receiver_id,id,text,post_time,is_edited
 0,1,0,I've been trying to reach you about your car's extended warranty,2023-11-07 14:08:28.636053,False
-0,1,1,"Wow Cave, tell me more",2023-11-07 14:23:25.931729,False
+0,1,1,"Wow Cave, tell me more!",2023-11-07 14:23:25.931729,False
 1,0,2,...huh?,2023-11-07 14:24:57.040484,False

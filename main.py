@@ -244,6 +244,12 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "User does not exist"
 
+            elif message["action"] == 20:
+                print("GetMessages")
+
+            elif message["action"] == 21:
+                print("GetConversations")
+
             print(message)
             await websocket.send(encoder.encode(response))
 
