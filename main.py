@@ -1,5 +1,6 @@
 import asyncio
 import json
+import pandas as pd
 import websockets as ws
 from websockets import server
 
@@ -78,6 +79,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 try:
                     userDB.delete_account(current_user.id, message["password"])
                     boardroomDB.clear_activity(current_user.id)
+                    messageDB.clear_activity(current_user.id)
                     current_user = None
                     response["success"] = True
                 except IncorrectPasswordError:
@@ -90,11 +92,28 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["message"] = "Exceeded maximum login attempts. Account is locked until tomorrow."
                     response["lockout"] = True
 
-            elif message["action"] == 5:
-                print("DeleteMessage")
+            elif message["action"] == 5:  # Delete Message
+                try:
+                    messageDB.delete_message(current_user.id, int(message["recipient"]), int(message["message_id"]))
+                    response["success"] = True
+                except KeyError:
+                    response["success"] = False
+                    response["message"] = "Can only delete own messages"
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "Message does not exist"
 
-            elif message["action"] == 6:
-                print("EditMessage")
+            elif message["action"] == 6:  # Edit Message
+                try:
+                    messageDB.edit_message(current_user.id, int(message["recipient"]), int(message["message_id"]),
+                                           message["text"])
+                    response["success"] = True
+                except KeyError:
+                    response["success"] = False
+                    response["message"] = "Can only edit own messages"
+                except ValueError:
+                    response["success"] = False
+                    response["message"] = "Message does not exist"
 
             elif message["action"] == 7:  # Get Post
                 try:
@@ -199,8 +218,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "Post does not exist"
 
-
-            elif message["action"] == 16:
+            elif message["action"] == 16:  # Search Posts
                 results = boardroomDB.search_posts(message["keywords"], message["tags"])
                 response["success"] = True
                 response["posts"] = []
@@ -237,18 +255,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
             elif message["action"] == 19:  # Send Message
                 recipient = userDB.search("email", message["recipient"])
                 if len(recipient) == 1:
-                    direct_message = messageDB.write_message(int(recipient.id.values[0]), message["text"],
-                                                             current_user.id)
-                    response["success"] = True
-                else:
-                    response["success"] = False
-                    response["message"] = "User does not exist"
-
-            elif message["action"] == 20:  # Get Messages
-                participant = userDB.search("email", message["participant_email"])
-                if len(participant) == 1:
-                    participant = userDB.get_user_by_id(int(participant.id.values[0]))
+                    messageDB.write_message(int(recipient.id.values[0]), message["text"], current_user.id)
+                    participant = userDB.get_user_by_id(int(recipient.id.values[0]))
                     direct_messages = messageDB.get_messages(participant.id, current_user.id)
+
                     response["success"] = True
                     response["recipient"] = participant.format_for_response()
                     response["messages"] = []
@@ -260,8 +270,31 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "User does not exist"
 
-            elif message["action"] == 21:
-                print("GetConversations")
+            elif message["action"] == 20:  # Get Messages
+                participant = userDB.search("id", message["participant_id"])
+                if pd.isna(participant.email):
+                    participant = userDB.get_user_by_id(int(participant.id))
+                    direct_messages = messageDB.get_messages(participant.id, current_user.id)
+
+                    response["success"] = True
+                    response["recipient"] = participant.format_for_response()
+                    response["messages"] = []
+                    for message, post_time in direct_messages:
+                        response["messages"].append({"sender_message": message.sender == current_user.id,
+                                                     "text": message.text, "message_is_edited": message.edited,
+                                                     "id": message.id, "time": post_time})
+                else:
+                    response["success"] = False
+                    response["message"] = "User does not exist"
+
+            elif message["action"] == 21:  # Get Conversations
+                response["success"] = True
+                response["conversations"] = []
+                for receiver_id, text, time in messageDB.get_conversations(current_user.id):
+                    receiver = userDB.get_user_by_id(receiver_id)
+                    response["conversations"].append(
+                        {"recipient": receiver.format_for_response(), "last_message": text,
+                         "last_message_time": time})
 
             print(message)
             await websocket.send(encoder.encode(response))

@@ -8,7 +8,6 @@ from Classes.Errors import IncorrectPasswordError, AccountLockoutError
 from Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
 from Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
 from Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
-from Classes.Models.User import User
 
 
 class App(ThemedTk):
@@ -348,7 +347,7 @@ class App(ThemedTk):
                 response["success"] = False
                 response["message"] = "User does not exist"
 
-        elif message["action"] == 21:
+        elif message["action"] == 21:  # Get Conversations
             response["success"] = True
             response["conversations"] = []
             for receiver_id, text, time in messageDB.get_conversations(current_user.id):
