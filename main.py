@@ -244,8 +244,21 @@ async def connection(websocket: server.WebSocketServerProtocol):
                     response["success"] = False
                     response["message"] = "User does not exist"
 
-            elif message["action"] == 20:
-                print("GetMessages")
+            elif message["action"] == 20:  # Get Messages
+                participant = userDB.search("email", message["participant_email"])
+                if len(participant) == 1:
+                    participant = userDB.get_user_by_id(int(participant.id.values[0]))
+                    direct_messages = messageDB.get_messages(participant.id, current_user.id)
+                    response["success"] = True
+                    response["recipient"] = participant.format_for_response()
+                    response["messages"] = []
+                    for message, post_time in direct_messages:
+                        response["messages"].append({"sender_message": message.sender == current_user.id,
+                                                     "text": message.text, "message_is_edited": message.edited,
+                                                     "id": message.id, "time": post_time})
+                else:
+                    response["success"] = False
+                    response["message"] = "User does not exist"
 
             elif message["action"] == 21:
                 print("GetConversations")

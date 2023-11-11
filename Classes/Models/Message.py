@@ -24,6 +24,5 @@ class Message:
     def format_for_message_dataframe(self, time_created=None):
         if time_created is None:
             time_created = pd.Timestamp.now()
-        if self.sender > self.destination:
-            return {"sender_id": self.sender, "receiver_id": self.destination, "id": self.id, "text": self.text,
-                    "post_time": time_created, "is_edited": self.edited}
+        return {"sender_id": self.sender, "receiver_id": self.destination, "id": self.id, "text": self.text,
+                "post_time": time_created, "is_edited": self.edited}

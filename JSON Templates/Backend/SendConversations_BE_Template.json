@@ -1,0 +1,25 @@
+{
+    "success": true,
+    "conversations": [
+        {
+            "recipient": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>",
+                "id": "<id>"
+            },
+            "last_message": "<text>",
+            "last_message_time": "<time>"
+        },
+        {
+            "recipient": {
+                "name": "<name>",
+                "email": "<email>",
+                "picture": "<picture>",
+                "id": "<id>"
+            },
+            "last_message": "<text>",
+            "last_message_time": "<time>"
+        }
+    ]
+}
