@@ -203,8 +203,9 @@ class BoardroomDatabaseManager:
         else:
             raise KeyError
 
-    def like_entry(self, current_user, post_id, reply_id=-1):
-        """Increases the like count of a post or reply if the user has not already liked it"""
+    def toggle_like(self, current_user, post_id, reply_id=-1):
+        """Increases the like count of a post or reply if the user has not already liked it, and decreases it
+        otherwise."""
         post_nonexistent = len(self.df) <= post_id or pd.isna(self.df.iloc[post_id].title) or (reply_id != -1 and
             (len(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] == reply_id)]) ==
              0 or pd.isna(self.reply_df.loc[(self.reply_df["post_id"] == post_id) & (self.reply_df["reply_id"] ==
@@ -220,7 +221,10 @@ class BoardroomDatabaseManager:
                                                                        "reply_id": reply_id}])), ignore_index=False)
             self.__update_likes()
         else:
-            raise KeyError
+            self.like_df.drop(self.like_df[(self.like_df["user_id"] == current_user.id) &
+                                           (self.like_df["post_id"] == post_id) &
+                                           (self.like_df["reply_id"] == reply_id)].index, inplace=True)
+            self.__update_likes()
 
     def get_likes(self, current_user, post_id, reply_id=-1):
         """Detects how many likes a given post or reply has along with whether the current user has liked it"""

@@ -147,22 +147,16 @@ async def connection(websocket: server.WebSocketServerProtocol):
 
             elif message["action"] == 8:  # like post
                 try:
-                    boardroomDB.like_entry(current_user, int(message["post_id"]))
+                    boardroomDB.toggle_like(current_user, int(message["post_id"]))
                     response["success"] = True
-                except KeyError:
-                    response["success"] = False
-                    response["message"] = "User already liked post"
                 except ValueError:
                     response["success"] = False
                     response["message"] = "Post does not exist"
 
             elif message["action"] == 9:  # like post reply
                 try:
-                    boardroomDB.like_entry(current_user, int(message["post_id"]), int(message["reply_id"]))
+                    boardroomDB.toggle_like(current_user, int(message["post_id"]), int(message["reply_id"]))
                     response["success"] = True
-                except KeyError:
-                    response["success"] = False
-                    response["message"] = "User already liked reply"
                 except ValueError:
                     response["success"] = False
                     response["message"] = "Reply does not exist"
