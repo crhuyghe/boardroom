@@ -2,6 +2,9 @@ import asyncio
 import json
 import websockets as ws
 from websockets import server
+
+import boardroomApp
+
 # from Classes.DatabaseReader import DatabaseReader
 
 # BoardroomDB = DatabaseReader("boardroom")
@@ -79,3 +82,7 @@ async def main():
 if __name__ == "__main__":
     print("Launching server...")
     asyncio.run(main())
+
+    # This may have been implemented using the wrong logic, HOWEVER:
+    print("Hello")  # This was inserted to see if anything would print after running this file, but nothing happens
+    boardroomApp.main()  # This should open the window from this file's main method, but it does not.
