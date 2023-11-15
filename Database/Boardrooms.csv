@@ -1,3 +1,4 @@
-id,title,poster_id,text,like_count,view_count,post_time,is_edited
-0,Post Title,0,post text,0,0,2023-11-03 13:11:32.541756,False
-1,Post Title 2,0,post text,0,0,2023-11-03 13:12:31.812848,False
+id,title,poster_id,text,view_count,post_time,is_edited
+0,Post Title,0,"When life gives you lemons, don't make lemonade! Get mad!",7,2023-11-03 13:11:32.541756,True
+1,Post Title 2,0,post text,0,2023-11-03 13:12:31.812848,False
+2,test post,1,Insert text here,0,2023-11-06 14:15:56.022726,False
