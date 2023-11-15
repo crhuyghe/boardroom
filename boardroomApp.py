@@ -15,10 +15,8 @@ class AsyncGUI(ThemedTk):
         self.interval = 1 / 120
         self.protocol("WM_DELETE_WINDOW", lambda: self.run_as_task(self._close))
         self.tasks = set()
-        self.tasks.add(self.loop.create_task(self._updater()))  # Window update loop
-        self.connection = self.loop.create_task(self._connection_handler())  # Websocket Connection
-        self.tasks.add(self.connection)
-        self.connection.add_done_callback(self.tasks.discard)
+        self.run_as_task(self._updater)
+        self.run_as_task(self._connection_handler)
         self._updater_closed = asyncio.Event()
 
         # DO NOT TOUCH THESE VARIABLES. Use the send_message function to send and receive messages.
@@ -70,13 +68,14 @@ class AsyncGUI(ThemedTk):
     async def _connection_handler(self, reconnecting=False):
         try:
             async with ws.connect("ws://localhost:8765") as websocket:
+                self._connection_closed.clear()
                 self.websocket = websocket
                 self._connected.set()
                 if self.login:
                     await websocket.send(self.login)
                     self.logged_in = self.is_successful(await websocket.recv())
 
-                reconnecting = False
+                print("Connection successful")
                 while not self._closing:
                     await self._outgoing_message_flag.wait()
                     if not self._closing:
@@ -86,19 +85,25 @@ class AsyncGUI(ThemedTk):
                         self._incoming_message = await websocket.recv()
                         self._incoming_message_flag.set()
             self._connection_closed.set()
-        except ConnectionClosedError as e:
+        except ConnectionClosedError:
             self._connected.clear()
-            print(type(e), "\nAttempting reconnection...")
+            self._connection_closed.set()
+            self.logged_in = False
+            print("Connection error. attempting reconnection...")
+            self.run_as_task(self._reconnect)
+        except ConnectionRefusedError:
+            print("Connection attempt failed. Retrying...")
+            self._connection_closed.set()
             if not reconnecting:
-                reconnect = self.loop.create_task(self._reconnect())
-                self.tasks.add(reconnect)
-                reconnect.add_done_callback(self.tasks.discard)
+                self.run_as_task(self._reconnect)
 
     async def _reconnect(self):
         task = None
-        while not self._connected.is_set():
+        while not self._connected.is_set() and not self._closing:
+            self._connection_closed.clear()
             task = self.loop.create_task(self._connection_handler(True))
             await asyncio.sleep(3)
+            await self._connection_closed.wait()
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
 
