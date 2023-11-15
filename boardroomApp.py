@@ -118,6 +118,8 @@ class AsyncGUI(ThemedTk):
         """Allows the window to close properly"""
         self._closing = True
         self._outgoing_message_flag.set()
+        self._incoming_message = '{"success": false}'
+        self._incoming_message_flag.set()
         await self._connection_closed.wait()
         await self._updater_closed.wait()
         for task in self.tasks:
