@@ -296,6 +296,9 @@ async def connection(websocket: server.WebSocketServerProtocol):
     except ws.ConnectionClosedOK:
         print("Client disconnected:", websocket.id)
 
+    except ws.ConnectionClosedError:
+        print("Client disconnected with error:", websocket.id)
+
     except ConnectionError:
         print("Client disconnected with error:", websocket.id)
 
