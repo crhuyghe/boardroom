@@ -13,12 +13,13 @@ class AsyncGUI(ThemedTk):
         # These lines are necessary for running asyncio with tkinter
         self.loop = main_loop
         self.interval = 1 / 120
-        self.protocol("WM_DELETE_WINDOW", self._close)
+        self.protocol("WM_DELETE_WINDOW", lambda: self.run_as_task(self._close))
         self.tasks = set()
         self.tasks.add(self.loop.create_task(self._updater()))  # Window update loop
-        connection = self.loop.create_task(self._connection_handler())  # Websocket Connection
-        self.tasks.add(connection)
-        connection.add_done_callback(self.tasks.discard)
+        self.connection = self.loop.create_task(self._connection_handler())  # Websocket Connection
+        self.tasks.add(self.connection)
+        self.connection.add_done_callback(self.tasks.discard)
+        self._updater_closed = asyncio.Event()
 
         # DO NOT TOUCH THESE VARIABLES. Use the send_message function to send and receive messages.
         self._outgoing_message = None
@@ -26,6 +27,8 @@ class AsyncGUI(ThemedTk):
         self._incoming_message = None
         self._incoming_message_flag = asyncio.Event()
         self._connected = asyncio.Event()  # Check for connection with line "self._connected.is_set()"
+        self._closing = False
+        self._connection_closed = asyncio.Event()
 
         # Set this equal to the user's login request if it is successful
         self.login = None
@@ -43,8 +46,6 @@ class AsyncGUI(ThemedTk):
 
 
     def run_as_task(self, func, *args):
-        print(func)
-
         task = self.loop.create_task(func(*args))
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
@@ -62,25 +63,29 @@ class AsyncGUI(ThemedTk):
         self._outgoing_message = message
         await self._incoming_message_flag.wait()
         self._incoming_message_flag.clear()
+        print(self._incoming_message)
 
         return json.JSONDecoder().decode(self._incoming_message)
 
     async def _connection_handler(self, reconnecting=False):
         try:
             async with ws.connect("ws://localhost:8765") as websocket:
+                self.websocket = websocket
                 self._connected.set()
                 if self.login:
                     await websocket.send(self.login)
                     self.logged_in = self.is_successful(await websocket.recv())
 
                 reconnecting = False
-                while True:
+                while not self._closing:
                     await self._outgoing_message_flag.wait()
-                    await websocket.send(self._outgoing_message)
-                    self._outgoing_message_flag.clear()
-                    self._outgoing_message = None
-                    self._incoming_message = await websocket.recv()
-                    self._incoming_message_flag.set()
+                    if not self._closing:
+                        await websocket.send(self._outgoing_message)
+                        self._outgoing_message_flag.clear()
+                        self._outgoing_message = None
+                        self._incoming_message = await websocket.recv()
+                        self._incoming_message_flag.set()
+            self._connection_closed.set()
         except ConnectionClosedError as e:
             self._connected.clear()
             print(type(e), "\nAttempting reconnection...")
@@ -99,12 +104,17 @@ class AsyncGUI(ThemedTk):
 
     async def _updater(self):
         """Updates the GUI"""
-        while True:
+        while not self._closing:
             self.update()
             await asyncio.sleep(self.interval)
+        self._updater_closed.set()
 
-    def _close(self):
+    async def _close(self):
         """Allows the window to close properly"""
+        self._closing = True
+        self._outgoing_message_flag.set()
+        await self._connection_closed.wait()
+        await self._updater_closed.wait()
         for task in self.tasks:
             if task:
                 task.cancel(msg=None)
