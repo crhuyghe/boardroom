@@ -34,6 +34,7 @@ class AsyncGUI(ThemedTk):
 
         # Add your GUI elements here
         self.title("Boardroom")
+        ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
         self.frame = ttk.Frame()
         test_message = {"action": 1, "email": "cave.johnson@aperture.com", "password": "IH8Lemons"}
         self.test_button = ttk.Button(self.frame, text="Test Button",

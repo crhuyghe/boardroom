@@ -1,11 +1,3 @@
-import tkinter as tk
-from tkinter import ttk, StringVar
-from ttkthemes import ThemedTk
-
-from Classes.Models.User import User
-from Frontend.Classes.UserFrame import UserFrame
-
-
 class BoardroomFrame(ttk.Frame):
     def __init__(self, master, title, text, like_command, edit_command, delete_command, reply_command, like_count, poster, is_owned=False, is_liked=False):
         super().__init__(master)
@@ -64,16 +56,3 @@ class BoardroomFrame(ttk.Frame):
             self.like_button.configure(image=self.not_liked_image)
             self.like_count.set(str(int(self.like_count.get()) - 1))
         like_command()
-
-
-
-window = ThemedTk(theme="adapta")
-s = ttk.Style()
-s.configure('.', font=('Segoe UI Symbol', 16))
-func = lambda: print("hi")
-user = User(0, "cave.johnson@aperture.com", "Cave Johnson")
-new_frame = BoardroomFrame(window, "This is a title. Deal with it",
-                           "Hello, this is a test message. The size of this box is unrestrained.", func, func, func,
-                           func, 1337, user, True, True)
-new_frame.pack(expand=1, fill="both")
-window.mainloop()
