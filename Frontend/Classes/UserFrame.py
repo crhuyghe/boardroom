@@ -7,5 +7,5 @@ class UserFrame(ttk.Frame):
         self.name_label = ttk.Label(self, text=user.name, font=("Segoe UI Symbol", 10))
         self.email_label = ttk.Label(self, text=user.email, font=("Segoe UI Symbol", 7), foreground="#AAAAAA")
 
-        self.name_label.grid(row=0, sticky="w")
-        self.email_label.grid(row=1, sticky="w")
+        self.name_label.grid(row=0)
+        self.email_label.grid(row=1)
