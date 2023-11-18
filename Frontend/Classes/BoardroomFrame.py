@@ -6,7 +6,7 @@ from Frontend.Classes.UserFrame import UserFrame
 
 
 class BoardroomFrame(ttk.Frame):
-    def __init__(self, master, title, text, like_command, edit_command, delete_command, reply_command, like_count, poster, post_time, post_id, is_edited=False, is_owned=False, is_liked=False):
+    def __init__(self, master, title, text, like_command, edit_command, delete_command, reply_command, like_count, poster, post_time, post_id, is_edited=False, is_owned=False, is_liked=False, width=1200):
         super().__init__(master)
         self.post_id = post_id
         self.poster = poster
@@ -20,9 +20,9 @@ class BoardroomFrame(ttk.Frame):
         ttk.Style().configure("title.TLabel", font=("Segoe UI Historic", 24), background="#EEEEEE")
         self.title_frame = ttk.Frame(self, style="title.TFrame", padding=[0, 0, 0, 5])
         self.title_label = ttk.Label(self.title_frame, text=title, justify="left", style="title.TLabel",
-                                     padding=[10, 0, 0, 5], wraplength=1200)
+                                     padding=[10, 0, 0, 5], wraplength=width)
 
-        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=1000)
+        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=int(width*(5/6)))
 
         self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked.png")
         self.liked_image = self.liked_image.subsample(2)

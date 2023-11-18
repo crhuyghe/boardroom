@@ -6,7 +6,7 @@ from Frontend.Classes.UserFrame import UserFrame
 
 
 def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time, reply_id,
-             is_edited=False, is_owned=False, is_liked=False):
+             is_edited=False, is_owned=False, is_liked=False, text_width=850):
     super().__init__(master)
     self.reply_id = reply_id
     self.poster = poster
@@ -16,7 +16,7 @@ def __init__(self, master, text, like_command, edit_command, delete_command, lik
     self.label_text = StringVar()
     self.label_text.set(text)
 
-    self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=850,
+    self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=text_width,
                                 font=("Segoe UI Symbol", 14))
 
     self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked.png")

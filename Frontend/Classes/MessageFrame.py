@@ -2,7 +2,7 @@ from tkinter import ttk, StringVar
 from datetime import datetime
 
 class MessageFrame(ttk.Frame):
-    def __init__(self, master, text, poster, message_id, post_time="", show_header=True):
+    def __init__(self, master, text, poster, message_id, post_time="", show_header=True, text_width=700):
         super().__init__(master)
         self.message_id = message_id
         self.poster = poster
@@ -10,7 +10,7 @@ class MessageFrame(ttk.Frame):
         self.label_text = StringVar()
         self.label_text.set(text)
 
-        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=700,
+        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=text_width,
                                     font=("Segoe UI Symbol", 10))
 
         if show_header:
