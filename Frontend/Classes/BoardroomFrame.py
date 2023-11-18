@@ -11,6 +11,7 @@ class BoardroomFrame(ttk.Frame):
         self.post_id = post_id
         self.poster = poster
         self.is_liked = is_liked
+        self.is_edited = is_edited
 
         self.label_text = StringVar()
         self.label_text.set(text)
@@ -49,8 +50,8 @@ class BoardroomFrame(ttk.Frame):
             self.edit_button.grid(row=6, column=23)
             self.delete_button.grid(row=6, column=24)
 
+        self.edited_label = ttk.Label(self, text="(edited)", foreground="#AAAAAA", font=("Segoe UI Symbol", 8))
         if is_edited:
-            self.edited_label = ttk.Label(self, text="(edited)", foreground="#AAAAAA", font=("Segoe UI Symbol", 8))
             self.edited_label.grid(row=6, column=27)
 
         post_time = datetime.strptime(post_time, '%Y-%m-%d %X.%f').strftime("%b %d, %Y at %I:%M %p")
@@ -69,10 +70,10 @@ class BoardroomFrame(ttk.Frame):
         self.like_count_label.grid(row=2, column=0)
         self.title_frame.grid(row=0, column=0, columnspan=30, sticky="nsew")
         self.title_label.pack(anchor="w", fill="x", expand=1)
-        self.text_label.grid(row=1, column=1, rowspan=5, columnspan=29, sticky="w")
+        self.text_label.grid(row=1, column=1, rowspan=5, columnspan=29, sticky="nsew")
         self.user_frame.grid(row=6, column=0, columnspan=3)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
     def execute_like_command(self, like_command):
         self.is_liked = not self.is_liked
@@ -83,3 +84,10 @@ class BoardroomFrame(ttk.Frame):
             self.like_button.configure(image=self.not_liked_image)
             self.like_count.set(str(int(self.like_count.get()) - 1))
         like_command()
+
+    def modify_text(self, text):
+        self.label_text.set(text)
+        if not self.is_edited:
+            self.is_edited = True
+            self.edited_label.grid(row=6, column=27)
+
