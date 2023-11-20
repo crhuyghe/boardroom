@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, StringVar
 from datetime import datetime
 
+from Frontend.Classes.FlatButton import FlatButton
 from Frontend.Classes.UserFrame import UserFrame
 
 class ReplyFrame(ttk.Frame):
@@ -14,6 +15,7 @@ class ReplyFrame(ttk.Frame):
         self.poster = poster
         self.is_liked = is_liked
         self.is_edited = is_edited
+        self.is_owned = is_owned
         self.dark_mode = dark_mode
         self.run_as_task = run_as_task
 
@@ -53,11 +55,8 @@ class ReplyFrame(ttk.Frame):
         ttk.Style().configure("postbottomactive.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5],
                               background=button_background)
         if is_owned:
-            self.edit_button = ttk.Label(self, text="Edit Reply", style="postbottom.TLabel", cursor="hand2")
-            self.edit_button.bind("<Button-1>", lambda x: self.execute_button_command(self.edit_button, edit_command))
-
-            self.delete_button = ttk.Label(self, text="Delete Reply", style="postbottom.TLabel", cursor="hand2")
-            self.delete_button.bind("<Button-1>", lambda x: self.execute_button_command(self.delete_button, delete_command))
+            self.edit_button = FlatButton(self, run_as_task, text="Edit Post", dark_mode=dark_mode, command=edit_command)
+            self.delete_button = FlatButton(self, run_as_task, text="Delete Post", dark_mode=dark_mode, command=delete_command)
 
             self.edit_button.grid(row=6, column=24)
             self.delete_button.grid(row=6, column=25)
@@ -105,18 +104,19 @@ class ReplyFrame(ttk.Frame):
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#a6afbc")
-            ttk.Style().configure("postbottomactive.TLabel", background="#34373b")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
             self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#222222")
-            ttk.Style().configure("postbottomactive.TLabel", background="#DDDDDD")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
         else:
             self.like_button.configure(image=self.not_liked_image)
+        if self.is_owned:
+            self.edit_button.swap_mode()
+            self.delete_button.swap_mode()
 
     def modify_text(self, text):
         self.label_text.set(text)

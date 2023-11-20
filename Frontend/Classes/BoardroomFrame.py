@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, StringVar
 from datetime import datetime
 
+from Frontend.Classes.FlatButton import FlatButton
 from Frontend.Classes.UserFrame import UserFrame
 
 
@@ -13,6 +14,7 @@ class BoardroomFrame(ttk.Frame):
         self.poster = poster
         self.is_liked = is_liked
         self.is_edited = is_edited
+        self.is_owned = is_owned
         self.dark_mode = dark_mode
         self.run_as_task = run_as_task
 
@@ -59,12 +61,10 @@ class BoardroomFrame(ttk.Frame):
         ttk.Style().configure("postbottom.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5])
         ttk.Style().configure("postbottomactive.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5],
                               background=button_background)
-        if is_owned:
-            self.edit_button = ttk.Label(self, text="Edit Post", style="postbottom.TLabel", cursor="hand2")
-            self.edit_button.bind("<Button-1>", lambda x: self.execute_button_command(self.edit_button, edit_command))
 
-            self.delete_button = ttk.Label(self, text="Delete Post", style="postbottom.TLabel", cursor="hand2")
-            self.delete_button.bind("<Button-1>", lambda x: self.execute_button_command(self.delete_button, delete_command))
+        if is_owned:
+            self.edit_button = FlatButton(self, run_as_task, text="Edit Post", dark_mode=dark_mode, command=edit_command)
+            self.delete_button = FlatButton(self, run_as_task, text="Delete Post", dark_mode=dark_mode, command=delete_command)
 
             self.edit_button.grid(row=6, column=23)
             self.delete_button.grid(row=6, column=24)
@@ -81,8 +81,9 @@ class BoardroomFrame(ttk.Frame):
         self.time_label = ttk.Label(self, text=post_time, font=("Segoe UI Symbol", 8), foreground=time_foreground)
         self.time_label.grid(row=6, column=26)
 
-        self.reply_button = ttk.Label(self, text="Reply", style="postbottom.TLabel", cursor="hand2")
-        self.reply_button.bind("<Button-1>", lambda x: self.execute_button_command(self.reply_button, reply_command))
+        # self.reply_button = ttk.Label(self, text="Reply", style="postbottom.TLabel", cursor="hand2")
+        # self.reply_button.bind("<Button-1>", lambda x: self.execute_button_command(self.reply_button, reply_command))
+        self.reply_button = FlatButton(self, run_as_task, text="Reply", dark_mode=dark_mode, command=reply_command)
         self.reply_button.grid(row=6, column=25)
 
         self.user_frame = UserFrame(self, poster)
@@ -132,6 +133,10 @@ class BoardroomFrame(ttk.Frame):
             self.like_button.configure(image=self.liked_image)
         else:
             self.like_button.configure(image=self.not_liked_image)
+        self.reply_button.swap_mode()
+        if self.is_owned:
+            self.edit_button.swap_mode()
+            self.delete_button.swap_mode()
 
     def modify_text(self, text):
         self.label_text.set(text)
