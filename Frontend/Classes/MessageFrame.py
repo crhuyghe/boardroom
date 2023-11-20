@@ -1,9 +1,10 @@
 from tkinter import ttk, StringVar
 from datetime import datetime
 
+
 class MessageFrame(ttk.Frame):
-    def __init__(self, master, text, poster, message_id, post_time="", show_header=True, text_width=700):
-        super().__init__(master)
+    def __init__(self, master, text, poster, message_id, post_time="", show_header=True, dark_mode=False, text_width=700, padding=0):
+        super().__init__(master, padding=padding)
         self.message_id = message_id
         self.poster = poster
 
@@ -20,8 +21,14 @@ class MessageFrame(ttk.Frame):
                 post_time = post_time[:16] + post_time[17:]
             if post_time[4] == "0":
                 post_time = post_time[:4] + post_time[5:]
-            self.time_label = ttk.Label(self.header_frame, text=post_time, font=("Segoe UI Symbol", 10), foreground="#222222", padding=[10,2, 0, 0])
-            self.name_label = ttk.Label(self.header_frame, text=poster.name, font=("Segoe UI Bold", 12))
+            if dark_mode:
+                self.time_label = ttk.Label(self.header_frame, text=post_time, font=("Segoe UI Symbol", 10),
+                                            foreground="#999999", padding=[10, 2, 0, 0])
+                self.name_label = ttk.Label(self.header_frame, text=poster.name, font=("Segoe UI Bold", 12),
+                                            foreground="#DDDDDD")
+            else:
+                self.time_label = ttk.Label(self.header_frame, text=post_time, font=("Segoe UI Symbol", 10), foreground="#222222", padding=[10,2, 0, 0])
+                self.name_label = ttk.Label(self.header_frame, text=poster.name, font=("Segoe UI Bold", 12), foreground="#444444")
 
             self.name_label.grid(row=0, column=0, sticky="w")
             self.time_label.grid(row=0, column=1, sticky="w")
