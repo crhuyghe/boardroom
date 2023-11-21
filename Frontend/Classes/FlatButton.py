@@ -3,9 +3,11 @@ import tkinter as tk
 from tkinter import ttk, StringVar
 from typing import Literal
 
+from boardroomApp import AsyncGUI
+
 
 class FlatButton(ttk.Label):
-    def __init__(self, master: tk.Misc | None, run_as_task, dark_mode=False, font=("Segoe UI Symbol", 10),
+    def __init__(self, master: tk.Misc | None, dark_mode=False, font=("Segoe UI Symbol", 10),
                  cursor="hand2", padding=(10, 5, 10, 5), image=None, text: float | str = "", textvariable: tk.Variable = None,
                  width: int | Literal[""] = "", wraplength=1000, command=None):
         print(width)
@@ -29,7 +31,6 @@ class FlatButton(ttk.Label):
             else:
                 super().__init__(master, font=font, cursor=cursor, padding=padding, text=text, wraplength=wraplength)
         self.bind("<Button-1>", lambda _: self._execute(command))
-        self.run_as_task = run_as_task
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("flatbuttonactive.TLabel", background="#34373b")
@@ -45,7 +46,7 @@ class FlatButton(ttk.Label):
 
 
     def _execute(self, command):
-        self.run_as_task(self._sim_button)
+        self._run_as_task(self._sim_button)
         if command:
             command()
 
@@ -54,3 +55,9 @@ class FlatButton(ttk.Label):
         self.configure(style="flatbuttonactive.TLabel")
         await asyncio.sleep(.125)
         self.configure(style="TLabel")
+
+    def _run_as_task(self, func, *args):
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(func(*args))
+        AsyncGUI.tasks.add(task)
+        task.add_done_callback(AsyncGUI.tasks.discard)

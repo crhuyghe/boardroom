@@ -5,11 +5,12 @@ from datetime import datetime
 
 from Frontend.Classes.FlatButton import FlatButton
 from Frontend.Classes.UserFrame import UserFrame
+from boardroomApp import AsyncGUI
+
 
 class ReplyFrame(ttk.Frame):
-    def __init__(self, master, text, like_command, edit_command, delete_command, run_as_task, like_count, poster,
-                 post_time, reply_id,
-                 is_edited=False, is_owned=False, is_liked=False, dark_mode=False, text_width=850):
+    def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time,
+                 reply_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, text_width=850):
         super().__init__(master)
         self.reply_id = reply_id
         self.poster = poster
@@ -17,7 +18,6 @@ class ReplyFrame(ttk.Frame):
         self.is_edited = is_edited
         self.is_owned = is_owned
         self.dark_mode = dark_mode
-        self.run_as_task = run_as_task
 
         self.label_text = StringVar()
         self.label_text.set(text)
@@ -55,8 +55,8 @@ class ReplyFrame(ttk.Frame):
         ttk.Style().configure("postbottomactive.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5],
                               background=button_background)
         if is_owned:
-            self.edit_button = FlatButton(self, run_as_task, text="Edit Post", dark_mode=dark_mode, command=edit_command)
-            self.delete_button = FlatButton(self, run_as_task, text="Delete Post", dark_mode=dark_mode, command=delete_command)
+            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode, command=edit_command)
+            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode, command=delete_command)
 
             self.edit_button.grid(row=6, column=24)
             self.delete_button.grid(row=6, column=25)
@@ -70,7 +70,7 @@ class ReplyFrame(ttk.Frame):
             post_time = post_time[:16] + post_time[17:]
         if post_time[4] == "0":
             post_time = post_time[:4] + post_time[5:]
-        self.time_label = ttk.Label(self, text=post_time, font=("Segoe UI Symbol", 8), foreground="#222222")
+        self.time_label = ttk.Label(self, text=post_time, font=("Segoe UI Symbol", 8), foreground=time_foreground)
         self.time_label.grid(row=6, column=26)
 
         self.user_frame = UserFrame(self, poster)
@@ -91,10 +91,6 @@ class ReplyFrame(ttk.Frame):
             self.like_button.configure(image=self.not_liked_image)
             self.like_count.set(str(int(self.like_count.get()) - 1))
         like_command()
-
-    def execute_button_command(self, button, command):
-        self.run_as_task(self.sim_button, button)
-        command()
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
@@ -124,7 +120,8 @@ class ReplyFrame(ttk.Frame):
             self.is_edited = True
             self.edited_label.grid(row=6, column=27)
 
-    async def sim_button(self, button: ttk.Button):
-        button.configure(style="postbottomactive.TLabel")
-        await asyncio.sleep(.125)
-        button.configure(style="postbottom.TLabel")
+    def _run_as_task(self, func, *args):
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(func(*args))
+        AsyncGUI.tasks.add(task)
+        task.add_done_callback(AsyncGUI.tasks.discard)

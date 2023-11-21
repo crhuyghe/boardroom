@@ -7,6 +7,8 @@ from ttkthemes import ThemedTk
 from websockets.exceptions import ConnectionClosedError
 
 class AsyncGUI(ThemedTk):
+    tasks = set()
+
     def __init__(self, main_loop: asyncio.AbstractEventLoop):
         super().__init__(theme="adapta")
 
@@ -14,7 +16,6 @@ class AsyncGUI(ThemedTk):
         self.loop = main_loop
         self.interval = 1 / 120
         self.protocol("WM_DELETE_WINDOW", lambda: self.run_as_task(self._close))
-        self.tasks = set()
         self.run_as_task(self._updater)
         self.run_as_task(self._connection_handler)
         self._updater_closed = asyncio.Event()
@@ -37,12 +38,11 @@ class AsyncGUI(ThemedTk):
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
         self.frame = ttk.Frame()
         test_message = {"action": 1, "email": "cave.johnson@aperture.com", "password": "IH8Lemons"}
-        self.test_button = ttk.Button(self.frame, text="Test Button",
-                                      command=lambda: self.run_as_task(self.send_message, test_message))
-        self.test_button.pack(side="top")
+        # self.test_button = ttk.Button(self.frame, text="Test Button",
+        #                               command=lambda: self.run_as_task(self.send_message, test_message))
+        # self.test_button.pack(side="top")
 
         self.frame.pack(fill="both", expand=1)
-
 
     def run_as_task(self, func, *args):
         task = self.loop.create_task(func(*args))

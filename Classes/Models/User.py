@@ -1,15 +1,11 @@
 import pandas as pd
 
 class User:
-    id = -1
-    email = ""
-    name = ""
-    picture = ""
-
     def __init__(self, user_id: int, email: str, name: str):
         self.id = int(user_id)
         self.email = email
         self.name = name
+        self.picture = ""
 
     def format_for_response(self):
         return {"name": self.name, "email": self.email, "picture": self.picture, "id": self.id}

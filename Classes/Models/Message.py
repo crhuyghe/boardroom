@@ -2,12 +2,6 @@ import pandas as pd
 
 # Class for direct messages and possibly for boardroom replies
 class Message:
-    id = -1
-    sender = None
-    destination = None
-    text = ""
-    edited = False
-
     def __init__(self, message_id: int, sender, destination, text, edited: bool):
         self.id = int(message_id)
         self.sender = sender
