@@ -88,7 +88,9 @@ class ResizingText(ttk.Frame):
             self.update_size()
 
     def update_size(self):
+        self.update_idletasks()
         height = self.text_widget.count(1.0, "end", "update", "displaylines")
+        print(height, len(self.get_text().replace(" ", "")) - 1)
         if len(self.get_text().replace(" ", "")) - 1 != height or self.get_text().replace("\n", "") == "":
             self.text_widget.configure(height=height)
         else:
