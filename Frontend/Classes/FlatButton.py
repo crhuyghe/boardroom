@@ -1,9 +1,6 @@
-import asyncio
 import tkinter as tk
-from tkinter import ttk, StringVar
+from tkinter import ttk
 from typing import Literal
-
-from boardroomApp import AsyncGUI
 
 
 class FlatButton(ttk.Label):
@@ -46,18 +43,10 @@ class FlatButton(ttk.Label):
 
 
     def _execute(self, command):
-        self._run_as_task(self._sim_button)
+        self._sim_button()
         if command:
             command()
 
-
-    async def _sim_button(self):
+    def _sim_button(self):
         self.configure(style="flatbuttonactive.TLabel")
-        await asyncio.sleep(.125)
-        self.configure(style="TLabel")
-
-    def _run_as_task(self, func, *args):
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(func(*args))
-        AsyncGUI.tasks.add(task)
-        task.add_done_callback(AsyncGUI.tasks.discard)
+        self.after(125, func=lambda: self.configure(style="TLabel"))
