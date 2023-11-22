@@ -4,13 +4,14 @@ from tkinter import ttk, StringVar
 from datetime import datetime
 
 from Frontend.Classes.FlatButton import FlatButton
+from Frontend.Classes.ResizingText import ResizingText
 from Frontend.Classes.UserFrame import UserFrame
 from boardroomApp import AsyncGUI
 
 
 class ReplyFrame(ttk.Frame):
     def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time,
-                 reply_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, text_width=850):
+                 reply_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=70):
         super().__init__(master)
         self.reply_id = reply_id
         self.poster = poster
@@ -19,20 +20,15 @@ class ReplyFrame(ttk.Frame):
         self.is_owned = is_owned
         self.dark_mode = dark_mode
 
-        self.label_text = StringVar()
-        self.label_text.set(text)
-
-        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=text_width,
-                                    font=("Segoe UI Symbol", 14))
+        self.text_label = ResizingText(self, text, width=width, dark_mode=self.dark_mode, font=("Segoe UI Symbol", 14),
+                                       padding=[25, 0, 0, 5])
         if dark_mode:
-            button_background = "#34373b"
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
             self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
         else:
-            button_background = "#DDDDDD"
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
             self.liked_image = self.liked_image.subsample(4)
@@ -51,9 +47,6 @@ class ReplyFrame(ttk.Frame):
         self.like_count_label = ttk.Label(self, textvariable=self.like_count, padding=5,
                                           font=("Segoe UI Historic", 8))
 
-        ttk.Style().configure("postbottom.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5])
-        ttk.Style().configure("postbottomactive.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5],
-                              background=button_background)
         if is_owned:
             self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode, command=edit_command)
             self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode, command=delete_command)
@@ -110,12 +103,12 @@ class ReplyFrame(ttk.Frame):
             self.like_button.configure(image=self.liked_image)
         else:
             self.like_button.configure(image=self.not_liked_image)
+        self.text_label.swap_mode()
         if self.is_owned:
             self.edit_button.swap_mode()
             self.delete_button.swap_mode()
 
-    def modify_text(self, text):
-        self.label_text.set(text)
+    def tag_edited(self):
         if not self.is_edited:
             self.is_edited = True
             self.edited_label.grid(row=6, column=27)

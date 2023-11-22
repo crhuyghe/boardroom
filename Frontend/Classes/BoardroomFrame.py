@@ -4,12 +4,13 @@ from tkinter import ttk, StringVar
 from datetime import datetime
 
 from Frontend.Classes.FlatButton import FlatButton
+from Frontend.Classes.ResizingText import ResizingText
 from Frontend.Classes.UserFrame import UserFrame
 from boardroomApp import AsyncGUI
 
 
 class BoardroomFrame(ttk.Frame):
-    def __init__(self, master, title, text, like_command, edit_command, delete_command, reply_command, like_count, poster, post_time, post_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=1200):
+    def __init__(self, master, title, text, like_command, edit_command, delete_command, reply_command, like_count, poster, post_time, post_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=60):
         super().__init__(master)
         self.post_id = post_id
         self.poster = poster
@@ -18,32 +19,24 @@ class BoardroomFrame(ttk.Frame):
         self.is_owned = is_owned
         self.dark_mode = dark_mode
 
-        self.label_text = StringVar()
-        self.label_text.set(text)
-
         if dark_mode:
-            title_background = "#292c30"
-            button_background = "#34373b"
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
             self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
         else:
-            title_background = "#EEEEEE"
-            button_background = "#DDDDDD"
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
             self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
 
-        ttk.Style().configure("title.TLabel", font=("Segoe UI Historic", 24), background=title_background)
-        self.title_frame = ttk.Frame(self, padding=[0, 0, 0, 5])
-        self.title_label = ttk.Label(self.title_frame, text=title, justify="left", style="title.TLabel",
-                                     padding=[10, 0, 0, 5], wraplength=width)
+        self.title_label = ResizingText(self, title, dark_mode=dark_mode, width=width, font=("Segoe UI Historic", 24),
+                                        padding=[0, 0, 0, 5], text_padding=(10, 5), alt_color=True)
 
-        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=int(width*(5/6)))
+        self.text_label = ResizingText(self, text=text, dark_mode=dark_mode, width=int(width*(5/6)),
+                                       padding=[30, 5, 0, 10])
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
         self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
@@ -57,10 +50,6 @@ class BoardroomFrame(ttk.Frame):
         self.like_count.set(str(like_count))
         self.like_count_label = ttk.Label(self, textvariable=self.like_count, padding=5,
                                           font=("Segoe UI Historic", 8))
-
-        ttk.Style().configure("postbottom.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5])
-        ttk.Style().configure("postbottomactive.TLabel", font=("Segoe UI Symbol", 10), padding=[10, 5, 10, 5],
-                              background=button_background)
 
         if is_owned:
             self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode, command=edit_command)
@@ -86,10 +75,9 @@ class BoardroomFrame(ttk.Frame):
 
         self.user_frame = UserFrame(self, poster)
 
-        self.like_button.grid(row=2, column=0, sticky="n")
-        self.like_count_label.grid(row=2, column=0, sticky="s")
-        self.title_frame.grid(row=0, column=0, columnspan=30, sticky="nsew")
-        self.title_label.pack(anchor="w", fill="x", expand=1)
+        self.like_button.grid(row=2, column=0, sticky="s")
+        self.like_count_label.grid(row=3, column=0, sticky="n")
+        self.title_label.grid(row=0, column=0, columnspan=30, sticky="nsew")
         self.text_label.grid(row=1, column=1, rowspan=5, columnspan=29, sticky="nsew")
         self.user_frame.grid(row=6, column=0, columnspan=3)
         self.grid_columnconfigure("all", weight=1)
@@ -113,7 +101,6 @@ class BoardroomFrame(ttk.Frame):
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#a6afbc")
-            ttk.Style().configure("postbottomactive.TLabel", background="#34373b")
             ttk.Style().configure("title.TLabel", background="#292c30")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
@@ -121,19 +108,18 @@ class BoardroomFrame(ttk.Frame):
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
             self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#222222")
-            ttk.Style().configure("postbottomactive.TLabel", background="#DDDDDD")
             ttk.Style().configure("title.TLabel", background="#EEEEEE")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
         else:
             self.like_button.configure(image=self.not_liked_image)
+        self.text_label.swap_mode()
         self.reply_button.swap_mode()
         if self.is_owned:
             self.edit_button.swap_mode()
             self.delete_button.swap_mode()
 
-    def modify_text(self, text):
-        self.label_text.set(text)
+    def tag_edited(self):
         if not self.is_edited:
             self.is_edited = True
             self.edited_label.grid(row=6, column=27)

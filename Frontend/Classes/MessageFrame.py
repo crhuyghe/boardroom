@@ -1,18 +1,18 @@
 from tkinter import ttk, StringVar
 from datetime import datetime
 
+from Frontend.Classes.ResizingText import ResizingText
+
 
 class MessageFrame(ttk.Frame):
-    def __init__(self, master, text, poster, message_id, post_time="", show_header=True, dark_mode=False, text_width=700, padding=0):
+    def __init__(self, master, text, poster, message_id, post_time="", show_header=True, dark_mode=False, width=70, padding=0):
         super().__init__(master, padding=padding)
+        self.dark_mode = dark_mode
         self.message_id = message_id
         self.poster = poster
 
-        self.label_text = StringVar()
-        self.label_text.set(text)
-
-        self.text_label = ttk.Label(self, textvariable=self.label_text, padding=[25, 0, 0, 0], wraplength=text_width,
-                                    font=("Segoe UI Symbol", 10))
+        self.text_label = ResizingText(self, text, width=width, font=("Segoe UI Symbol", 10), dark_mode=True,
+                                       padding=[25, 0, 0, 0])
 
         if show_header:
             self.header_frame = ttk.Frame(self)
@@ -37,3 +37,13 @@ class MessageFrame(ttk.Frame):
         self.text_label.grid(row=1, column=0, rowspan=5, columnspan=30)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+
+    def swap_mode(self):
+        self.dark_mode = not self.dark_mode
+        if self.dark_mode:
+            self.time_label.configure(foreground="#999999")
+            self.name_label.configure(foreground="#DDDDDD")
+        else:
+            self.time_label.configure(foreground="#222222")
+            self.name_label.configure(foreground="#444444")
+        self.text_label.swap_mode()
