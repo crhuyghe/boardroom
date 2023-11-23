@@ -25,15 +25,11 @@ class ReplyFrame(ttk.Frame):
         if dark_mode:
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
         else:
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
         self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
@@ -89,15 +85,11 @@ class ReplyFrame(ttk.Frame):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
             self.liked_image.configure(file="Frontend/Assets/liked_dark.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#a6afbc")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#222222")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)

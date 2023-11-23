@@ -22,15 +22,11 @@ class BoardroomFrame(ttk.Frame):
         if dark_mode:
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
         else:
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
 
         self.title_label = ResizingText(self, title, dark_mode=dark_mode, width=width, font=("Segoe UI Historic", 24),
                                         padding=[0, 0, 0, 5], text_padding=(10, 5), alt_color=True)
@@ -97,16 +93,12 @@ class BoardroomFrame(ttk.Frame):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
             self.liked_image.configure(file="Frontend/Assets/liked_dark.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#a6afbc")
             ttk.Style().configure("title.TLabel", background="#292c30")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
-            self.liked_image = self.liked_image.subsample(4)
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
-            self.not_liked_image = self.not_liked_image.subsample(4)
             self.time_label.configure(foreground="#222222")
             ttk.Style().configure("title.TLabel", background="#EEEEEE")
         if self.is_liked:
