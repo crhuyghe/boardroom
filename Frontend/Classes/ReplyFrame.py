@@ -11,9 +11,10 @@ from boardroomApp import AsyncGUI
 
 class ReplyFrame(ttk.Frame):
     def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time,
-                 reply_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=70):
+                 reply_id, post_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=70):
         super().__init__(master)
         self.reply_id = reply_id
+        self.post_id = post_id
         self.poster = poster
         self.is_liked = is_liked
         self.is_edited = is_edited
@@ -26,10 +27,19 @@ class ReplyFrame(ttk.Frame):
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
+            menu_colors = ("#1f2226", "#b6bfcc")
         else:
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
+            menu_colors = ("#eeeeee", "#000000")
+
+        self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
+        self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
+        if is_owned:
+            self.rc_menu.add_command(label="Edit", command=lambda: edit_command(reply_id, post_id))
+            self.rc_menu.add_command(label="Delete", command=lambda: delete_command(reply_id, post_id))
+        self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
         self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
@@ -44,8 +54,10 @@ class ReplyFrame(ttk.Frame):
                                           font=("Segoe UI Historic", 8))
 
         if is_owned:
-            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode, command=edit_command)
-            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode, command=delete_command)
+            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode,
+                                          command=lambda: edit_command(reply_id, post_id))
+            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode,
+                                            command=lambda: edit_command(reply_id, post_id))
 
             self.edit_button.grid(row=6, column=24)
             self.delete_button.grid(row=6, column=25)
@@ -87,10 +99,12 @@ class ReplyFrame(ttk.Frame):
             self.liked_image.configure(file="Frontend/Assets/liked_dark.png")
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
             self.time_label.configure(foreground="#a6afbc")
+            self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
             self.time_label.configure(foreground="#222222")
+            self.rc_menu.configure(background="#eeeeee", foreground="#000000")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
         else:
@@ -110,3 +124,14 @@ class ReplyFrame(ttk.Frame):
         task = loop.create_task(func(*args))
         AsyncGUI.tasks.add(task)
         task.add_done_callback(AsyncGUI.tasks.discard)
+
+    def _popup_menu(self, event):
+        try:
+            self.rc_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.rc_menu.grab_release()
+
+    def _copy_text(self):
+        text = self.text_label.get_text()
+        self.clipboard_clear()
+        self.clipboard_append(text)

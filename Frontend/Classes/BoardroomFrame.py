@@ -23,16 +23,25 @@ class BoardroomFrame(ttk.Frame):
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
+            menu_colors = ("#1f2226", "#b6bfcc")
         else:
             time_foreground = "#222222"
             self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
             self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
+            menu_colors = ("#eeeeee", "#000000")
 
         self.title_label = ResizingText(self, title, dark_mode=dark_mode, width=width, font=("Segoe UI Historic", 24),
                                         padding=[0, 0, 0, 5], text_padding=(10, 5), alt_color=True)
 
         self.text_label = ResizingText(self, text=text, dark_mode=dark_mode, width=int(width*(5/6)),
                                        padding=[30, 5, 0, 10])
+
+        self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
+        self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
+        if is_owned:
+            self.rc_menu.add_command(label="Edit", command=lambda: edit_command(post_id))
+            self.rc_menu.add_command(label="Delete", command=lambda: delete_command(post_id))
+        self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
         self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
@@ -48,8 +57,10 @@ class BoardroomFrame(ttk.Frame):
                                           font=("Segoe UI Historic", 8))
 
         if is_owned:
-            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode, command=edit_command)
-            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode, command=delete_command)
+            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode,
+                                          command=lambda: edit_command(post_id))
+            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode,
+                                            command=lambda: delete_command(post_id))
 
             self.edit_button.grid(row=6, column=23)
             self.delete_button.grid(row=6, column=24)
@@ -95,11 +106,13 @@ class BoardroomFrame(ttk.Frame):
             self.liked_image.configure(file="Frontend/Assets/liked_dark.png")
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
             self.time_label.configure(foreground="#a6afbc")
+            self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
             ttk.Style().configure("title.TLabel", background="#292c30")
         else:
             self.liked_image.configure(file="Frontend/Assets/liked_light.png")
             self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
             self.time_label.configure(foreground="#222222")
+            self.rc_menu.configure(background="#eeeeee", foreground="#000000")
             ttk.Style().configure("title.TLabel", background="#EEEEEE")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
@@ -121,3 +134,14 @@ class BoardroomFrame(ttk.Frame):
         task = loop.create_task(func(*args))
         AsyncGUI.tasks.add(task)
         task.add_done_callback(AsyncGUI.tasks.discard)
+
+    def _popup_menu(self, event):
+        try:
+            self.rc_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.rc_menu.grab_release()
+
+    def _copy_text(self):
+        text = self.text_label.get_text()
+        self.clipboard_clear()
+        self.clipboard_append(text)
