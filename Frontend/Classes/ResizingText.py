@@ -52,7 +52,7 @@ class ResizingText(ttk.Frame):
         self.text_widget.configure(state="disabled", height=ceil((height/self._width)))
         self.text_widget.pack(side="left", expand=1, fill="x")
 
-        self.after(10, self.update_size)
+        self.text_widget.bind("<Visibility>", lambda _: self.update_size())
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
@@ -90,6 +90,7 @@ class ResizingText(ttk.Frame):
     def update_size(self):
         self.update_idletasks()
         height = self.text_widget.count(1.0, "end", "update", "displaylines")
+        print(height)
         if len(self.get_text().replace(" ", "")) - 1 != height or self.get_text().replace("\n", "") == "":
             self.text_widget.configure(height=height)
         else:
