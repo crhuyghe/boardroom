@@ -1,0 +1,118 @@
+from datetime import datetime, timedelta
+from tkinter import ttk
+
+from Classes.Models.User import User
+from Frontend.Classes.FlatButton import FlatButton
+from Frontend.Classes.MessageFrame import MessageFrame
+from Frontend.Classes.ResizingText import ResizingText
+from Frontend.Classes.ScrollFrame import ScrollFrame
+
+
+class DirectMessagesFrame(ttk.Frame):
+    def __init__(self, master, database_response, current_user, edit_command, delete_command, send_command,
+                 dark_mode=False):
+        super().__init__(master)
+        self.dark_mode = dark_mode
+        self.current_user = current_user
+        self.recipient = database_response["recipient"]
+        self.recipient = User(self.recipient["id"], self.recipient["email"], self.recipient["name"])
+
+        self.messages = database_response["messages"]
+        self.message_frames = []
+
+        if self.dark_mode:
+            ttk.Style().configure("headerfooter.TFrame", background="#1f2226")
+            ttk.Style().configure("headerfooter.TLabel", background="#1f2226")
+            name_fg = "#DDDDDD"
+            email_fg = "#AAAAAA"
+        else:
+            ttk.Style().configure("headerfooter.TFrame", background="#DDDDDD")
+            ttk.Style().configure("headerfooter.TLabel", background="#DDDDDD")
+            name_fg = "#111111"
+            email_fg = "#AAAAAA"
+
+        # Displays current conversation and edit/delete buttons
+        self.header_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
+
+        # Displays current messages
+        self.messages_frame = ScrollFrame(self, dark_mode)
+
+        # Displays input
+        self.footer_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
+
+        self.user_label = ttk.Frame(self.header_frame, style="headerfooter.TFrame")
+        self.name_label = ttk.Label(self.user_label, text=self.recipient.name, font=("Segoe UI Historic", 22),
+                         foreground=name_fg, style="headerfooter.TLabel")
+        self.email_label = ttk.Label(self.user_label, text=self.recipient.email, font=("Segoe UI Historic", 12),
+                        foreground=email_fg, style="headerfooter.TLabel")
+        self.name_label.pack(side="top", anchor="w")
+        self.email_label.pack(side="top")
+
+        self.user_label.pack(side="left")
+
+        for i in range(len(self.messages)):
+            if self.messages[i]["sender_message"]:
+                sender = self.current_user
+            else:
+                sender = self.recipient
+
+            if i > 0 and self.messages[i-1]["id"] == sender.id:
+                prev_time = datetime.strptime(self.messages[i-1]["time"], '%Y-%m-%d %X.%f')
+                curr_time = datetime.strptime(self.messages[i]["time"], '%Y-%m-%d %X.%f')
+                if prev_time + timedelta(minutes=2) > curr_time:
+                    header = False
+                    post_time = ""
+                    padding = [0, 5, 0, 0]
+                else:
+                    header = True
+                    post_time = self.messages[i]["time"]
+                    padding = [0, 10, 0, 0]
+            else:
+                header = True
+                post_time = self.messages[i]["time"]
+                padding = [0, 10, 0, 0]
+
+            message = MessageFrame(self.messages_frame.frame, self.messages[i]["text"], sender,
+                                   self.messages[i]["id"], edit_command, delete_command, post_time, header,
+                                   self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
+                                   dark_mode, 90, padding)
+
+            message.pack(side="top")
+
+            self.message_frames.append(message)
+        self.messages_frame.canvas.update_idletasks()
+        self.messages_frame.canvas.yview_moveto("1.0")
+
+        self.send_box = ResizingText(self.footer_frame, padding=5, width=50, dark_mode=dark_mode, text_padding=(5, 5),
+                                     dynamic=True, display_text=f"Send to {self.recipient.name}",
+                                     font=("Segoe UI Symbol", 12))
+        self.send_box.toggle_modification()
+
+        self.send_button = FlatButton(self.footer_frame, dark_mode=dark_mode, text="Send",
+                                      command=lambda: send_command(self.send_box.get_text(), self.recipient.id))
+
+        self.send_button.pack(side="right", padx=(30, 0))
+        self.send_box.pack(side="left", fill="x", expand=True)
+
+        self.header_frame.grid(row=0, column=0, sticky="nswe")
+        self.messages_frame.grid(row=1, column=0, sticky="nsew")
+        self.footer_frame.grid(row=2, column=0, sticky="nswe")
+
+        self.grid_rowconfigure(1, weight=20)
+        self.grid_rowconfigure(0, weight=1)
+
+    def swap_mode(self):
+        self.dark_mode = not self.dark_mode
+        for frame in self.message_frames:
+            frame.swap_mode()
+        self.messages_frame.swap_mode()
+        self.send_box.swap_mode()
+        self.send_button.swap_mode()
+        if self.dark_mode:
+            ttk.Style().configure("headerfooter.TFrame", background="#1f2226")
+            ttk.Style().configure("headerfooter.TLabel", background="#1f2226")
+            self.name_label.configure(foreground="#DDDDDD")
+        else:
+            ttk.Style().configure("headerfooter.TFrame", background="#DDDDDD")
+            ttk.Style().configure("headerfooter.TLabel", background="#DDDDDD")
+            self.name_label.configure(foreground="#111111")

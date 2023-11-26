@@ -9,6 +9,7 @@ class MessageFrame(ttk.Frame):
     def __init__(self, master, text, poster, message_id, edit_command, delete_command, post_time="", show_header=True, is_owned=False, is_edited=False, dark_mode=False, width=70, padding=0):
         super().__init__(master, padding=padding)
         self.dark_mode = dark_mode
+        self.show_header = show_header
         self.message_id = message_id
         self.poster = poster
 
@@ -58,12 +59,14 @@ class MessageFrame(ttk.Frame):
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
-            self.time_label.configure(foreground="#999999")
-            self.name_label.configure(foreground="#DDDDDD")
+            if self.show_header:
+                self.time_label.configure(foreground="#999999")
+                self.name_label.configure(foreground="#DDDDDD")
             self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
         else:
-            self.time_label.configure(foreground="#222222")
-            self.name_label.configure(foreground="#444444")
+            if self.show_header:
+                self.time_label.configure(foreground="#222222")
+                self.name_label.configure(foreground="#444444")
             self.rc_menu.configure(background="#eeeeee", foreground="#000000")
         self.text_label.swap_mode()
 

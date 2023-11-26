@@ -36,13 +36,13 @@ class AsyncGUI(ThemedTk):
         # Add your GUI elements here
         self.title("Boardroom")
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
-        self.frame = ttk.Frame()
+        # self.frame = ttk.Frame()
         test_message = {"action": 1, "email": "cave.johnson@aperture.com", "password": "IH8Lemons"}
         # self.test_button = ttk.Button(self.frame, text="Test Button",
         #                               command=lambda: self.run_as_task(self.send_message, test_message))
         # self.test_button.pack(side="top")
 
-        self.frame.pack(fill="both", expand=1)
+        # self.frame.pack(fill="both", expand=1)
 
     def run_as_task(self, func, *args):
         task = self.loop.create_task(func(*args))
@@ -92,7 +92,7 @@ class AsyncGUI(ThemedTk):
             self.logged_in = False
             print("Connection error. attempting reconnection...")
             self.run_as_task(self._reconnect)
-        except ConnectionRefusedError:
+        except ConnectionRefusedError or asyncio.TimeoutError:
             print("Connection attempt failed. Retrying...")
             self._connection_closed.set()
             if not reconnecting:
@@ -105,8 +105,9 @@ class AsyncGUI(ThemedTk):
             task = self.loop.create_task(self._connection_handler(True))
             await asyncio.sleep(3)
             await self._connection_closed.wait()
-        self.tasks.add(task)
-        task.add_done_callback(self.tasks.discard)
+        if task:
+            self.tasks.add(task)
+            task.add_done_callback(self.tasks.discard)
 
     async def _updater(self):
         """Updates the GUI"""
@@ -121,10 +122,10 @@ class AsyncGUI(ThemedTk):
         self._outgoing_message_flag.set()
         self._incoming_message = '{"success": false}'
         self._incoming_message_flag.set()
-        await self._connection_closed.wait()
-        await self._updater_closed.wait()
+        await asyncio.wait_for(self._connection_closed.wait(), 4)
+        await asyncio.wait_for(self._updater_closed.wait(), 3)
         for task in self.tasks:
-            if task:
+            if task and "AsyncGUI._close" not in str(task.get_coro()):
                 task.cancel(msg=None)
         self.loop.stop()
         self.destroy()

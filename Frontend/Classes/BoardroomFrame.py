@@ -77,7 +77,7 @@ class BoardroomFrame(ttk.Frame):
         self.time_label = ttk.Label(self, text=post_time, font=("Segoe UI Symbol", 8), foreground=time_foreground)
         self.time_label.grid(row=6, column=26)
 
-        self.reply_button = FlatButton(self, text="Reply", dark_mode=dark_mode, command=reply_command)
+        self.reply_button = FlatButton(self, text="Reply", dark_mode=dark_mode, command=lambda: reply_command(post_id))
         self.reply_button.grid(row=6, column=25)
 
         self.user_frame = UserFrame(self, poster)
@@ -98,7 +98,7 @@ class BoardroomFrame(ttk.Frame):
         else:
             self.like_button.configure(image=self.not_liked_image)
             self.like_count.set(str(int(self.like_count.get()) - 1))
-        like_command()
+        like_command(self.post_id)
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode

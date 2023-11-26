@@ -5,8 +5,8 @@ from typing import Literal
 
 class FlatButton(ttk.Label):
     def __init__(self, master: tk.Misc | None, dark_mode=False, font=("Segoe UI Symbol", 10),
-                 cursor="hand2", padding=(10, 5, 10, 5), image=None, text: float | str = "", textvariable: tk.Variable = None,
-                 width: int | Literal[""] = "", wraplength=1000, command=None):
+                 cursor="hand2", padding=(10, 5, 10, 5), image=None, text: float | str = "",
+                 textvariable: tk.Variable = None, width: int | Literal[""] = "", wraplength=1000, command=None):
         print(width)
         if image:
             if width != "":
