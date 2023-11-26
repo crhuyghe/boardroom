@@ -69,6 +69,7 @@ class ResizingText(ttk.Frame):
         self.text_widget.pack(side="left", expand=1, fill="x")
 
         self.text_widget.bind("<Visibility>", lambda _: self._update_size())
+        self.text_widget.bind("<Configure>", lambda _: self._update_size())
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
