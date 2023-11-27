@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from Classes.Models.Message import Message
+from Backend.Classes.Models.Message import Message
 
 
 class MessageDatabaseManager:

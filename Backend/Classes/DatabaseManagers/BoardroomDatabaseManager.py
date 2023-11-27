@@ -1,11 +1,9 @@
 import pandas as pd
 from numpy import nan
 import heapq
-import re
 
-from Classes.Models.Boardroom import Boardroom
-from Classes.Models.Message import Message
-from Classes.Models.User import User
+from Backend.Classes.Models.Boardroom import Boardroom
+from Backend.Classes.Models.Message import Message
 
 
 class BoardroomDatabaseManager:

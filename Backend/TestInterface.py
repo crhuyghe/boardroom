@@ -4,10 +4,10 @@ import pandas as pd
 from tkinter import ttk, StringVar
 from ttkthemes import ThemedTk
 
-from Classes.Errors import IncorrectPasswordError, AccountLockoutError
-from Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
-from Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
-from Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
+from Backend.Classes.Errors import IncorrectPasswordError, AccountLockoutError
+from Backend.Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
+from Backend.Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
+from Backend.Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
 
 
 class App(ThemedTk):

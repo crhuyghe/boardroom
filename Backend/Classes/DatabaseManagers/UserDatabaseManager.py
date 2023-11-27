@@ -1,6 +1,6 @@
 import pandas as pd
-from Classes.Models.User import User
-from Classes.Errors import IncorrectPasswordError, AccountLockoutError
+from Backend.Classes.Models.User import User
+from Backend.Classes.Errors import IncorrectPasswordError, AccountLockoutError
 from numpy import nan
 
 class UserDatabaseManager:

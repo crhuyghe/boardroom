@@ -1,8 +1,6 @@
-import asyncio
-import tkinter as tk
-from tkinter import ttk, StringVar
+from tkinter import ttk
 
-from Frontend.Classes.FlatButton import FlatButton
+from Frontend.Classes.Widgets.FlatButton import FlatButton
 
 class LoginFrame(ttk.Frame):
     def __init__(self, master=None, dark_mode=False):

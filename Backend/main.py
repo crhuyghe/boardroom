@@ -4,10 +4,10 @@ import pandas as pd
 import websockets as ws
 from websockets import server
 
-from Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
-from Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
-from Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
-from Classes.Errors import IncorrectPasswordError, AccountLockoutError
+from Backend.Classes.DatabaseManagers.BoardroomDatabaseManager import BoardroomDatabaseManager
+from Backend.Classes.DatabaseManagers.MessageDatabaseManager import MessageDatabaseManager
+from Backend.Classes.DatabaseManagers.UserDatabaseManager import UserDatabaseManager
+from Backend.Classes.Errors import IncorrectPasswordError, AccountLockoutError
 
 boardroomDB = BoardroomDatabaseManager()
 userDB = UserDatabaseManager()

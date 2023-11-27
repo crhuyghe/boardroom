@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from tkinter import ttk
 
-from Classes.Models.User import User
-from Frontend.Classes.FlatButton import FlatButton
-from Frontend.Classes.MessageFrame import MessageFrame
-from Frontend.Classes.ResizingText import ResizingText
-from Frontend.Classes.ScrollFrame import ScrollFrame
+from Backend.Classes.Models.User import User
+from Frontend.Classes.Widgets.FlatButton import FlatButton
+from Frontend.Classes.Components.MessageFrame import MessageFrame
+from Frontend.Classes.Widgets.ResizingText import ResizingText
+from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
 class DirectMessagesFrame(ttk.Frame):
@@ -35,7 +35,7 @@ class DirectMessagesFrame(ttk.Frame):
         self.header_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
 
         # Displays current messages
-        self.messages_frame = ScrollFrame(self, dark_mode)
+        self.message_list = ScrollFrame(self, dark_mode)
 
         # Displays input
         self.footer_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
@@ -72,7 +72,7 @@ class DirectMessagesFrame(ttk.Frame):
                 post_time = self.messages[i]["time"]
                 padding = [0, 10, 0, 0]
 
-            message = MessageFrame(self.messages_frame.frame, self.messages[i]["text"], sender,
+            message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
                                    self.messages[i]["id"], edit_command, delete_command, post_time, header,
                                    self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
                                    dark_mode, 90, padding)
@@ -80,8 +80,8 @@ class DirectMessagesFrame(ttk.Frame):
             message.pack(side="top")
 
             self.message_frames.append(message)
-        self.messages_frame.canvas.update_idletasks()
-        self.messages_frame.canvas.yview_moveto("1.0")
+        self.message_list.canvas.update_idletasks()
+        self.message_list.canvas.yview_moveto("1.0")
 
         self.send_box = ResizingText(self.footer_frame, padding=5, width=50, dark_mode=dark_mode, text_padding=(5, 5),
                                      dynamic=True, display_text=f"Send to {self.recipient.name}",
@@ -95,7 +95,7 @@ class DirectMessagesFrame(ttk.Frame):
         self.send_box.pack(side="left", fill="x", expand=True)
 
         self.header_frame.grid(row=0, column=0, sticky="nswe")
-        self.messages_frame.grid(row=1, column=0, sticky="nsew")
+        self.message_list.grid(row=1, column=0, sticky="nsew")
         self.footer_frame.grid(row=2, column=0, sticky="nswe")
 
         self.grid_rowconfigure(1, weight=20)
@@ -105,7 +105,7 @@ class DirectMessagesFrame(ttk.Frame):
         self.dark_mode = not self.dark_mode
         for frame in self.message_frames:
             frame.swap_mode()
-        self.messages_frame.swap_mode()
+        self.message_list.swap_mode()
         self.send_box.swap_mode()
         self.send_button.swap_mode()
         if self.dark_mode:

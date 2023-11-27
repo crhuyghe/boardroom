@@ -1,7 +1,7 @@
-from Classes.Models.User import User
-from Frontend.Classes.BoardroomFrame import BoardroomFrame
-from Frontend.Classes.ReplyFrame import ReplyFrame
-from Frontend.Classes.ScrollFrame import ScrollFrame
+from Backend.Classes.Models.User import User
+from Frontend.Classes.Components.BoardroomFrame import BoardroomFrame
+from Frontend.Classes.Components.ReplyFrame import ReplyFrame
+from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
 class FullPostFrame(ScrollFrame):
@@ -11,10 +11,10 @@ class FullPostFrame(ScrollFrame):
         poster = database_response["post_creator"]
         poster = User(poster["id"], poster["email"], poster["name"])
         self.boardroom_frame = BoardroomFrame(self.frame, database_response["post_title"],
-                                              database_response["post_text"], lambda pid: like_command(pid, None),
-                                              lambda pid: edit_command(pid, None),
-                                              lambda pid: delete_command(pid, None),
-                                              lambda pid: reply_command(pid, None), database_response["post_views"],
+                                              database_response["post_text"], lambda pid: like_command(pid),
+                                              lambda pid: edit_command(pid),
+                                              lambda pid: delete_command(pid),
+                                              lambda pid: reply_command(pid), database_response["post_views"],
                                               database_response["post_likes"], poster, database_response["post_time"],
                                               database_response["post_id"], database_response["post_is_edited"],
                                               current_user.id == poster.id, database_response["post_is_liked"],

@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, StringVar
+from tkinter import ttk
 from datetime import datetime
 
-from Frontend.Classes.ResizingText import ResizingText
+from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
 class MessageFrame(ttk.Frame):
