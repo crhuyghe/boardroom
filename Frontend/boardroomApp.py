@@ -6,11 +6,11 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from websockets.exceptions import ConnectionClosedError
 
-class AsyncGUI(ThemedTk):
+class AsyncGUI(tk.Tk):
     tasks = set()
 
     def __init__(self, main_loop: asyncio.AbstractEventLoop):
-        super().__init__(theme="adapta")
+        super().__init__()
 
         # These lines are necessary for running asyncio with tkinter
         self.loop = main_loop
