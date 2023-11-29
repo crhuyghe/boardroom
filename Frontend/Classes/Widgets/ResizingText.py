@@ -33,9 +33,9 @@ class ResizingText(ttk.Frame):
             ins_bg = "#b6bfcc"
         else:
             if alt_color:
-                bg = "#EEEEEE"
-            else:
                 bg = "#FFFFFF"
+            else:
+                bg = "#EEEEEE"
             fg = "#000000"
             ins_bg = "#000000"
         if cnf:
@@ -123,11 +123,11 @@ class ResizingText(ttk.Frame):
             fg = "#b6bfcc"
         else:
             if self.alt_color:
-                bg = "#EEEEEE"
-                alt_bg = "#FFFFFF"
-            else:
                 bg = "#FFFFFF"
                 alt_bg = "#EEEEEE"
+            else:
+                bg = "#EEEEEE"
+                alt_bg = "#FFFFFF"
             fg = "#000000"
         if self.editing_enabled:
             if not self._dynamic:
