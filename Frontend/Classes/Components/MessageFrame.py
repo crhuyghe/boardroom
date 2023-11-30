@@ -6,8 +6,8 @@ from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
 class MessageFrame(ttk.Frame):
-    def __init__(self, master, text, poster, message_id, edit_command, delete_command, post_time="", show_header=True, is_owned=False, is_edited=False, dark_mode=False, width=70, padding=0):
-        super().__init__(master, padding=padding)
+    def __init__(self, master, text, poster, message_id, edit_command, delete_command, post_time="", show_header=True, is_owned=False, is_edited=False, dark_mode=False, width=70, **kwargs):
+        super().__init__(master, **kwargs)
         self.dark_mode = dark_mode
         self.show_header = show_header
         self.message_id = message_id

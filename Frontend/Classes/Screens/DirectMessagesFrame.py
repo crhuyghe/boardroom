@@ -75,7 +75,7 @@ class DirectMessagesFrame(ttk.Frame):
             message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
                                    self.messages[i]["id"], edit_command, delete_command, post_time, header,
                                    self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
-                                   dark_mode, 90, padding)
+                                   dark_mode, 90, padding=padding)
 
             message.pack(side="top")
 
@@ -110,9 +110,9 @@ class DirectMessagesFrame(ttk.Frame):
         self.send_button.swap_mode()
         if self.dark_mode:
             ttk.Style().configure("headerfooter.TFrame", background="#1f2226")
-            ttk.Style().configure("headerfooter.TLabel", background="#1f2226")
+            ttk.Style().configure("headerfooter.TLabel", background="#1f2226", foreground="#b6bfcc")
             self.name_label.configure(foreground="#DDDDDD")
         else:
             ttk.Style().configure("headerfooter.TFrame", background="#DDDDDD")
-            ttk.Style().configure("headerfooter.TLabel", background="#DDDDDD")
+            ttk.Style().configure("headerfooter.TLabel", background="#DDDDDD", foreground="#000000")
             self.name_label.configure(foreground="#111111")
