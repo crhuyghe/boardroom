@@ -217,7 +217,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 response["success"] = True
                 response["posts"] = []
                 for vals in results:
-                    formatted_post = formatted_post = {"post_title": vals[0], "post_text": vals[1],
+                    formatted_post = {"post_title": vals[0], "post_text": vals[1],
                                   "post_creator": userDB.get_user_by_id(vals[2]).format_for_response(), "post_id": vals[3],
                                   "post_likes": vals[4], "post_views": vals[5], "post_time": vals[6],
                                   "post_replies": vals[7], "post_tags": vals[8]}
