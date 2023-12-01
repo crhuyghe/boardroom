@@ -49,8 +49,6 @@ class ConversationFrame(ttk.Frame):
                 last_word = (width*2, )
             last_message = last_message[:last_word[0]] + "..."
 
-        # self.text_label = ResizingText(self, last_message, width=width, font=("Segoe UI Symbol", 10),
-        #                                dark_mode=dark_mode, padding=[25, 0, 0, 0])
         self.text_label = ttk.Label(self, text=last_message, wraplength=width*8, font=("Segoe UI Symbol", 10),
                                     style="conversation.TLabel", padding=[25, 0, 0, 0])
 
@@ -80,7 +78,6 @@ class ConversationFrame(ttk.Frame):
             ttk.Style().configure("conversationactive.TFrame", background="#2f3236")
             ttk.Style().configure("conversation.TLabel", background="#1f2226", foreground="#b6bfcc")
             ttk.Style().configure("conversationactive.TLabel", background="#2f3236", foreground="#b6bfcc")
-            ttk.Style().configure("border.TFrame", background="#969fac")
         else:
             self.time_label.configure(foreground="#222222")
             self.name_label.configure(foreground="#444444")
@@ -89,7 +86,6 @@ class ConversationFrame(ttk.Frame):
             ttk.Style().configure("conversationactive.TFrame", background="#BBBBBB")
             ttk.Style().configure("conversation.TLabel", background="#DDDDDD", foreground="#000000")
             ttk.Style().configure("conversationactive.TLabel", background="#BBBBBB", foreground="#000000")
-            ttk.Style().configure("border.TFrame", background="#666666")
 
     def _execute(self, command):
         self._sim_button()
