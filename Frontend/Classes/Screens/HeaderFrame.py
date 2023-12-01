@@ -17,7 +17,7 @@ class HeaderFrame(ttk.Frame):
             ttk.Style().configure("headerbar.TLabel", background="#1d2024", foreground="#b6bfcc")
             ttk.Style().configure("header.TCheckbutton", background="#1d2024", foreground="#b6bfcc",
                                   font=('Segoe UI Symbol', 8))
-            self.search_image = tk.PhotoImage(file="Frontend/Assets/search_dark.png")
+            self.search_image = tk.PhotoImage(file="Assets/search_dark.png")
             menu_colors = ("#1f2226", "#b6bfcc")
             home_fg = "#84e0e8"
         else:
@@ -26,7 +26,7 @@ class HeaderFrame(ttk.Frame):
             ttk.Style().configure("headerbar.TLabel", background="#BBBBBB", foreground="#000000")
             ttk.Style().configure("header.TCheckbutton", background="#BBBBBB", foreground="#000000",
                                   font=('Segoe UI Symbol', 8))
-            self.search_image = tk.PhotoImage(file="Frontend/Assets/search_light.png")
+            self.search_image = tk.PhotoImage(file="Assets/search_light.png")
             menu_colors = ("#eeeeee", "#000000")
             home_fg = "#ab0323"
 
@@ -99,7 +99,7 @@ class HeaderFrame(ttk.Frame):
             ttk.Style().configure("headerbar.TFrame", background="#1d2024")
             ttk.Style().configure("headerbar.TLabel", background="#1d2024", foreground="#b6bfcc")
             ttk.Style().configure("header.TCheckbutton", background="#1d2024", foreground="#b6bfcc")
-            self.search_image.configure(file="Frontend/Assets/search_dark.png")
+            self.search_image.configure(file="Assets/search_dark.png")
             self.user_menu.configure(background="#1f2226", foreground="#b6bfcc")
             self.home_button.configure(foreground="#84e0e8")
         else:
@@ -107,7 +107,7 @@ class HeaderFrame(ttk.Frame):
             ttk.Style().configure("headerbar.TFrame", background="#BBBBBB")
             ttk.Style().configure("headerbar.TLabel", background="#BBBBBB", foreground="#000000")
             ttk.Style().configure("header.TCheckbutton", background="#BBBBBB", foreground="#000000")
-            self.search_image.configure(file="Frontend/Assets/search_light.png")
+            self.search_image.configure(file="Assets/search_light.png")
             self.user_menu.configure(background="#eeeeee", foreground="#000000")
             self.home_button.configure(foreground="#ab0323")
 

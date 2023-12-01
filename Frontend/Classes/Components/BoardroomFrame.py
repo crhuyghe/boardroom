@@ -22,13 +22,13 @@ class BoardroomFrame(ttk.Frame):
 
         if dark_mode:
             time_foreground = "#a6afbc"
-            self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_dark.png")
-            self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_dark.png")
+            self.liked_image = tk.PhotoImage(file="Assets/liked_dark.png")
+            self.not_liked_image = tk.PhotoImage(file="Assets/not_liked_dark.png")
             menu_colors = ("#1f2226", "#b6bfcc")
         else:
             time_foreground = "#222222"
-            self.liked_image = tk.PhotoImage(file="Frontend/Assets/liked_light.png")
-            self.not_liked_image = tk.PhotoImage(file="Frontend/Assets/not_liked_light.png")
+            self.liked_image = tk.PhotoImage(file="Assets/liked_light.png")
+            self.not_liked_image = tk.PhotoImage(file="Assets/not_liked_light.png")
             menu_colors = ("#eeeeee", "#000000")
 
         self.title_label = ResizingText(self, title, dark_mode=dark_mode, width=width, font=("Segoe UI Historic", 24),
@@ -108,14 +108,14 @@ class BoardroomFrame(ttk.Frame):
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
-            self.liked_image.configure(file="Frontend/Assets/liked_dark.png")
-            self.not_liked_image.configure(file="Frontend/Assets/not_liked_dark.png")
+            self.liked_image.configure(file="Assets/liked_dark.png")
+            self.not_liked_image.configure(file="Assets/not_liked_dark.png")
             self.time_label.configure(foreground="#a6afbc")
             self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
             ttk.Style().configure("title.TLabel", background="#292c30")
         else:
-            self.liked_image.configure(file="Frontend/Assets/liked_light.png")
-            self.not_liked_image.configure(file="Frontend/Assets/not_liked_light.png")
+            self.liked_image.configure(file="Assets/liked_light.png")
+            self.not_liked_image.configure(file="Assets/not_liked_light.png")
             self.time_label.configure(foreground="#222222")
             self.rc_menu.configure(background="#eeeeee", foreground="#000000")
             ttk.Style().configure("title.TLabel", background="#EEEEEE")
