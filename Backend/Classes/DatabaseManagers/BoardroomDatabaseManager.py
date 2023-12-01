@@ -58,7 +58,8 @@ class BoardroomDatabaseManager:
                             len(self.like_df.loc[
                                     (self.like_df["post_id"] == int(row.id)) & (self.like_df["reply_id"] == -1)]),
                             int(row.view_count), str(row.post_time),
-                            len(self.reply_df.loc[self.reply_df["post_id"] == int(row.id)])))
+                            len(self.reply_df.loc[self.reply_df["post_id"] == int(row.id)]),
+                            self.get_post_tags(int(row.id))))
         return results
 
 

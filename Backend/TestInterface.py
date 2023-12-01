@@ -281,7 +281,7 @@ class App(ThemedTk):
                 formatted_post = {"post_title": vals[0],
                                   "post_creator": userDB.get_user_by_id(vals[1]).format_for_response(), "post_id": vals[2],
                                   "post_likes": vals[3], "post_views": vals[4], "post_time": vals[5],
-                                  "post_replies": vals[6]}
+                                  "post_replies": vals[6], "post_tags": vals[7]}
                 response["posts"].append(formatted_post)
 
         elif message["action"] == 17:  # Delete Post Reply

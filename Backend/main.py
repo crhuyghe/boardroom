@@ -221,7 +221,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
                                       "post_creator": userDB.get_user_by_id(vals[1]).format_for_response(),
                                       "post_id": vals[2],
                                       "post_likes": vals[3], "post_views": vals[4], "post_time": vals[5],
-                                      "post_replies": vals[6]}
+                                      "post_replies": vals[6], "post_tags": vals[7]}
                     response["posts"].append(formatted_post)
 
             elif message["action"] == 17:  # Delete Post Reply
@@ -303,6 +303,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
         print("Client disconnected with error:", websocket.id)
 
 async def main():
+    # Swap "localhost" with server IP
     async with ws.serve(connection, "localhost", 8765):
         await asyncio.Future()  # run forever
 
