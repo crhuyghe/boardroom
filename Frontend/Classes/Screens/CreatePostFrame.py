@@ -5,15 +5,13 @@ from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
 class CreatePostFrame(ttk.Frame):
-    def __init__(self, master, current_user, create_command, dark_mode=False, **kwargs):
+    def __init__(self, master, create_command, dark_mode=False, **kwargs):
         super().__init__(master, **kwargs)
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("create.TLabel", background="#1f2226", foreground="#b6bfcc")
         else:
             ttk.Style().configure("create.TLabel", background="#DDDDDD", foreground="#000000")
-
-        name = current_user.name.split()
 
         self.creation_frame = ttk.Frame(self)
         self.prompt_label = ttk.Label(self.creation_frame, text="Enter a title, text, and tags for your new boardroom",
