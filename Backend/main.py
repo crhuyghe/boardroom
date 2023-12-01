@@ -217,11 +217,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 response["success"] = True
                 response["posts"] = []
                 for vals in results:
-                    formatted_post = {"post_title": vals[0],
-                                      "post_creator": userDB.get_user_by_id(vals[1]).format_for_response(),
-                                      "post_id": vals[2],
-                                      "post_likes": vals[3], "post_views": vals[4], "post_time": vals[5],
-                                      "post_replies": vals[6], "post_tags": vals[7]}
+                    formatted_post = formatted_post = {"post_title": vals[0], "post_text": vals[1],
+                                  "post_creator": userDB.get_user_by_id(vals[2]).format_for_response(), "post_id": vals[3],
+                                  "post_likes": vals[4], "post_views": vals[5], "post_time": vals[6],
+                                  "post_replies": vals[7], "post_tags": vals[8]}
                     response["posts"].append(formatted_post)
 
             elif message["action"] == 17:  # Delete Post Reply

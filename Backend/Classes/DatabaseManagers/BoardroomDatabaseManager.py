@@ -54,7 +54,7 @@ class BoardroomDatabaseManager:
 
         for index, _ in tuple(closest_matches):
             row = self.df.iloc[index]
-            results.append((row.title, int(row.poster_id), int(row.id),
+            results.append((row.title, row.text, int(row.poster_id), int(row.id),
                             len(self.like_df.loc[
                                     (self.like_df["post_id"] == int(row.id)) & (self.like_df["reply_id"] == -1)]),
                             int(row.view_count), str(row.post_time),

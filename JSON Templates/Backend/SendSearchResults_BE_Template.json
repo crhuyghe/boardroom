@@ -3,6 +3,7 @@
     "posts": [
         {
             "post_title": "<title>",
+            "post_text": "<text>",
             "post_creator": {
                 "name": "<name>",
                 "email": "<email>",
@@ -18,6 +19,7 @@
         },
         {
             "post_title": "<title>",
+            "post_text": "<text>",
             "post_creator": {
                 "name": "<name>",
                 "email": "<email>",
