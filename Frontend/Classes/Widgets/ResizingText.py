@@ -6,12 +6,13 @@ from math import ceil
 
 class ResizingText(ttk.Frame):
     def __init__(self, master: tk.Misc | None, text: str = "", cnf: dict = None, width: int = 100, font=None,
-                 dark_mode: bool = False, alt_color=False, dynamic=False, text_padding=0, display_text="", **kwargs):
+                 dark_mode: bool = False, alt_color=False, dynamic=False, text_padding=0, display_text="", min_height=1, **kwargs):
         super().__init__(master, **kwargs)
         self.dark_mode = dark_mode
         self.alt_color = alt_color
         self.editing_enabled = False
         self.display_text = display_text
+        self._min_height = min_height
         self._dynamic = dynamic
         self._width = width
 
@@ -173,7 +174,7 @@ class ResizingText(ttk.Frame):
         self._empty = self.text_widget.get(1.0, "end").replace("\n", "") == ""
         if height != self._height:
             if (len(self.get_text().replace(" ", "")) - 1 != height or self._empty):
-                self.text_widget.configure(height=max(height, min_size))
+                self.text_widget.configure(height=max(height, min_size, self._min_height))
                 self._height = height
             else:
                 self.after(10, self._update_size)
