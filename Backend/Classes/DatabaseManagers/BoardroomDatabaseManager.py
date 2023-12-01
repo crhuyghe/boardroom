@@ -47,13 +47,13 @@ class BoardroomDatabaseManager:
         index = 0
         while index < len(closest_matches) and closest_matches[index][1] != 0:
             index += 1
-        print(weights, closest_matches)
+
         closest_matches = closest_matches[:index]
-        print(closest_matches)
+
         results = []
 
-        for i in range(len(closest_matches)):
-            row = self.df.iloc[i]
+        for index, _ in tuple(closest_matches):
+            row = self.df.iloc[index]
             results.append((row.title, int(row.poster_id), int(row.id),
                             len(self.like_df.loc[
                                     (self.like_df["post_id"] == int(row.id)) & (self.like_df["reply_id"] == -1)]),
