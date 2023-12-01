@@ -6,8 +6,6 @@ from datetime import datetime
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 from Frontend.Classes.Components.UserFrame import UserFrame
-from Frontend.boardroomApp import AsyncGUI
-
 
 class ReplyFrame(ttk.Frame):
     def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time, reply_id, post_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=70, **kwargs):
@@ -117,12 +115,6 @@ class ReplyFrame(ttk.Frame):
         if not self.is_edited:
             self.is_edited = True
             self.edited_label.grid(row=6, column=27)
-
-    def _run_as_task(self, func, *args):
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(func(*args))
-        AsyncGUI.tasks.add(task)
-        task.add_done_callback(AsyncGUI.tasks.discard)
 
     def _popup_menu(self, event):
         try:
