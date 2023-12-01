@@ -72,8 +72,12 @@ class ResizingText(ttk.Frame):
         self.text_widget.bind("<Configure>", lambda _: self._update_size())
 
     def swap_mode(self):
+        editing_flag = False
         self.dark_mode = not self.dark_mode
         self.hide_display_text()
+        if self.editing_enabled:
+            self.toggle_modification()
+            editing_flag = True
         if self.dark_mode:
             if self.alt_color:
                 bg = "#292c30"
@@ -89,6 +93,8 @@ class ResizingText(ttk.Frame):
             fg = "#000000"
             ins_bg = "#000000"
         self.text_widget.configure(bg=bg, fg=fg, insertbackground=ins_bg)
+        if editing_flag:
+            self.toggle_modification()
         self.check_display_text()
 
     def get_text(self):

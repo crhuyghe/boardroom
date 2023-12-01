@@ -46,38 +46,49 @@ class ConversationSidebarFrame(ttk.Frame):
         self.border_list.append(border_horizontal)
         self.border_list.append(border_vertical)
 
-        self.conversations_frame = ScrollFrame(self, dark_mode)
 
         self.conversation_list = []
 
         database_response["conversations"].sort(key=lambda x: datetime.strptime(x["last_message_time"],
                                                                                 '%Y-%m-%d %X.%f'), reverse=True)
 
-        for conversation in database_response["conversations"]:
-            recipient = conversation["recipient"]
-            recipient = User(recipient["id"], recipient["email"], recipient["name"])
+        if len(database_response["conversations"]) > 0:
+            self.conversations_frame = ScrollFrame(self, dark_mode)
+            for conversation in database_response["conversations"]:
+                recipient = conversation["recipient"]
+                recipient = User(recipient["id"], recipient["email"], recipient["name"])
 
-            conversation_frame = ConversationFrame(self.conversations_frame.frame, recipient,
-                                                   conversation["last_message"], open_command,
-                                                   conversation["last_message_time"], dark_mode, padding=20)
-            conversation_frame.pack(side="top", fill="x", expand=1)
+                conversation_frame = ConversationFrame(self.conversations_frame.frame, recipient,
+                                                       conversation["last_message"], open_command,
+                                                       conversation["last_message_time"], dark_mode, padding=20)
+                conversation_frame.pack(side="top", fill="x", expand=1)
 
-            border = ttk.Frame(self.conversations_frame.frame, height=1, style="border.TFrame")
-            border.pack(side="top", fill="x", expand=1)
+                border = ttk.Frame(self.conversations_frame.frame, height=1, style="border.TFrame")
+                border.pack(side="top", fill="x", expand=1)
 
-            self.border_list.append(border)
-            self.conversation_list.append(conversation_frame)
-
-
+                self.border_list.append(border)
+                self.conversation_list.append(conversation_frame)
+            self.conversations_frame.grid(row=0, column=0, sticky="nsew")
+        else:
+            self.no_conversations_frame = ttk.Frame(self, style="send.TFrame")
+            self.no_conversations_label = ttk.Label(self.no_conversations_frame,
+                                                    text="No messages yet!\nSend one to one of\nyour friends!",
+                                                    font=("Segoe UI", 20), style="send.TLabel", justify="center",
+                                                    padding=[0, 50, 0, 0])
+            self.no_conversations_label.grid(column=1)
+            self.no_conversations_frame.grid_columnconfigure(0, weight=1)
+            self.no_conversations_frame.grid_columnconfigure(2, weight=1)
+            self.no_conversations_frame.grid(row=0, column=0, sticky="nsew")
 
         self.send_frame.grid(row=1, column=0, sticky="nsew")
-        self.conversations_frame.grid(row=0, column=0, sticky="nsew")
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
     def swap_mode(self):
-        self.conversations_frame.swap_mode()
+        self.dark_mode = not self.dark_mode
+        if len(self.conversation_list) > 0:
+            self.conversations_frame.swap_mode()
         if self.dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")
             ttk.Style().configure("send.TFrame", background="#1f2226")
@@ -86,6 +97,9 @@ class ConversationSidebarFrame(ttk.Frame):
             ttk.Style().configure("border.TFrame", background="#666666")
             ttk.Style().configure("send.TFrame", background="#DDDDDD")
             ttk.Style().configure("send.TLabel", background="#DDDDDD", foreground="#000000")
+
+        self.recipient_entry.swap_mode()
+        self.message_entry.swap_mode()
 
         for conversation_frame in self.conversation_list:
             conversation_frame.swap_mode()
