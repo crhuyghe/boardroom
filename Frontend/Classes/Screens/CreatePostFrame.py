@@ -1,12 +1,13 @@
 from tkinter import ttk
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
-class CreatePostFrame(ttk.Frame):
+class CreatePostFrame(ttk.Frame, DarkMode):
     def __init__(self, master, create_command, dark_mode=False, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("create.TLabel", background="#1f2226", foreground="#b6bfcc")

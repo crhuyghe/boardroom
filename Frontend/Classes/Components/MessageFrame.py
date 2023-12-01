@@ -2,12 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
-class MessageFrame(ttk.Frame):
+class MessageFrame(ttk.Frame, DarkMode):
     def __init__(self, master, text, poster, message_id, edit_command, delete_command, post_time="", show_header=True, is_owned=False, is_edited=False, dark_mode=False, width=70, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         self.show_header = show_header
         self.message_id = message_id

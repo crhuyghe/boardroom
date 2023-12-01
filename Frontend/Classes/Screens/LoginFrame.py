@@ -1,10 +1,11 @@
 from tkinter import ttk
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 
-class LoginFrame(ttk.Frame):
+class LoginFrame(ttk.Frame, DarkMode):
     def __init__(self, master=None, dark_mode=False):
-        super().__init__(master)
+        ttk.Frame.__init__(self, master)
         self.dark_mode = dark_mode
 
         # Style for login frame objects. Only changes background color.

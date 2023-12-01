@@ -1,8 +1,10 @@
 from datetime import datetime
 from tkinter import ttk
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 
-class ConversationFrame(ttk.Frame):
+
+class ConversationFrame(ttk.Frame, DarkMode):
     def __init__(self, master, recipient, last_message: str, open_command=None, message_time="", dark_mode=False, width=60, **kwargs):
         if dark_mode:
             time_color = "#999999"
@@ -21,7 +23,7 @@ class ConversationFrame(ttk.Frame):
             name_color = "#444444"
             email_color = "#666666"
 
-        super().__init__(master, style="conversation.TFrame", **kwargs)
+        ttk.Frame.__init__(self, master, style="conversation.TFrame", **kwargs)
 
         self.dark_mode = dark_mode
         self.recipient = recipient

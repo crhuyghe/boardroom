@@ -2,16 +2,17 @@ from datetime import datetime, timedelta
 from tkinter import ttk
 
 from Backend.Classes.Models.User import User
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Components.MessageFrame import MessageFrame
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
-class DirectMessagesFrame(ttk.Frame):
+class DirectMessagesFrame(ttk.Frame, DarkMode):
     def __init__(self, master, database_response, current_user, edit_command, delete_command, send_command,
                  dark_mode=False):
-        super().__init__(master)
+        ttk.Frame.__init__(self, master)
         self.dark_mode = dark_mode
         self.current_user = current_user
         self.recipient = database_response["recipient"]

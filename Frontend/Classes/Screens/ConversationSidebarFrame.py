@@ -3,13 +3,14 @@ from tkinter import ttk
 
 from Backend.Classes.Models.User import User
 from Frontend.Classes.Components.ConversationFrame import ConversationFrame
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
-class ConversationSidebarFrame(ttk.Frame):
+class ConversationSidebarFrame(ttk.Frame, DarkMode):
     def __init__(self, master, database_response, open_command, dark_mode=False, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")

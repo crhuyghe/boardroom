@@ -3,13 +3,14 @@ import tkinter as tk
 from tkinter import ttk, StringVar
 from datetime import datetime
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 from Frontend.Classes.Components.UserFrame import UserFrame
 
-class ReplyFrame(ttk.Frame):
+class ReplyFrame(ttk.Frame, DarkMode):
     def __init__(self, master, text, like_command, edit_command, delete_command, like_count, poster, post_time, reply_id, post_id, is_edited=False, is_owned=False, is_liked=False, dark_mode=False, width=70, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.reply_id = reply_id
         self.post_id = post_id
         self.poster = poster

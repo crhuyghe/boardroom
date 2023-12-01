@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
-from typing import Literal
+
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 
 
-class FlatButton(ttk.Label):
+class FlatButton(ttk.Label, DarkMode):
     def __init__(self, master: tk.Misc | None, dark_mode=False, font=("Segoe UI Symbol", 10),
                  cursor="hand2", padding=(10, 5, 10, 5), command=None, **kwargs):
-        super().__init__(master, font=font, cursor=cursor, padding=padding, **kwargs)
+        ttk.Label.__init__(self, master, font=font, cursor=cursor, padding=padding, **kwargs)
         self.bind("<Button-1>", lambda _: self._execute(command))
         if "style" in kwargs.keys():
             self.style = kwargs["style"]

@@ -1,15 +1,15 @@
 import tkinter as tk
 from tkinter import ttk, BooleanVar
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Components.UserFrame import UserFrame
 from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
-class HeaderFrame(ttk.Frame):
-
+class HeaderFrame(ttk.Frame, DarkMode):
     def __init__(self, master, current_user, home_command, search_command, logout_command, delete_account_command, mode_command, dark_mode=False, **kwargs):
-        super().__init__(master, style="headerbar.TFrame", **kwargs)
+        ttk.Frame.__init__(self, master, style="headerbar.TFrame", **kwargs)
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")
@@ -78,7 +78,6 @@ class HeaderFrame(ttk.Frame):
         self.dark_mode_button.pack(fill="y", expand=1, side="left")
 
         border_horizontal = ttk.Frame(self, height=3, style="border.TFrame")
-        # border_vertical = ttk.Frame(self.search_frame, width=3, style="border.TFrame")
         border_horizontal.grid(row=0, column=0, columnspan=3, sticky="sew")
 
         self.left_frame.grid(row=0, column=0, sticky="w")

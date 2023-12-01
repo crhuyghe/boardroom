@@ -1,10 +1,11 @@
 from datetime import datetime
 from tkinter import ttk
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Components.UserFrame import UserFrame
 
 
-class ResultFrame(ttk.Frame):
+class ResultFrame(ttk.Frame, DarkMode):
 
     def __init__(self, master, title, text, tags, view_count, like_count, reply_count, poster, post_id, post_time,
                  open_command=None, dark_mode=False, width=120, **kwargs):
@@ -20,7 +21,7 @@ class ResultFrame(ttk.Frame):
             ttk.Style().configure(f"tag{post_id}.TLabel", background="#E2E2E2")
             ttk.Style().configure(f"result{post_id}.TFrame", background="#EEEEEE")
             ttk.Style().configure(f"result{post_id}.TLabel", background="#EEEEEE", foreground="#000000")
-        super().__init__(master, style=f"result{post_id}.TFrame", **kwargs)
+        ttk.Frame.__init__(self, master, style=f"result{post_id}.TFrame", **kwargs)
 
         self.dark_mode = dark_mode
         self.poster = poster

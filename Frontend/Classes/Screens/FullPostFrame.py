@@ -1,13 +1,14 @@
 from Backend.Classes.Models.User import User
 from Frontend.Classes.Components.BoardroomFrame import BoardroomFrame
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Components.ReplyFrame import ReplyFrame
 from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
-class FullPostFrame(ScrollFrame):
+class FullPostFrame(ScrollFrame, DarkMode):
     def __init__(self, master, database_response, current_user, like_command, edit_command, delete_command,
                  reply_command, dark_mode=False, **kwargs):
-        super().__init__(master, dark_mode, **kwargs)
+        ScrollFrame.__init__(self, master, dark_mode, **kwargs)
         poster = database_response["post_creator"]
         poster = User(poster["id"], poster["email"], poster["name"])
         self.boardroom_frame = BoardroomFrame(self.frame, database_response["post_title"],
@@ -32,7 +33,7 @@ class FullPostFrame(ScrollFrame):
             self.reply_list.append(reply_frame)
 
     def swap_mode(self):
-        super().swap_mode()
+        ScrollFrame.swap_mode(self)
         self.boardroom_frame.swap_mode()
         for reply_frame in self.reply_list:
             reply_frame.swap_mode()

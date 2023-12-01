@@ -6,6 +6,7 @@ from tkinter import ttk
 from websockets.exceptions import ConnectionClosedError
 
 from Backend.Classes.Models.User import User
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Screens.ConversationSidebarFrame import ConversationSidebarFrame
 from Frontend.Classes.Screens.CreateAccountFrame import CreateAccountFrame
 from Frontend.Classes.Screens.CreatePostFrame import CreatePostFrame
@@ -16,11 +17,11 @@ from Frontend.Classes.Screens.LoginFrame import LoginFrame
 from Frontend.Classes.Screens.SearchResultsFrame import SearchResultsFrame
 from Frontend.Classes.Screens.WelcomeFrame import WelcomeFrame
 
-class AsyncGUI(tk.Tk):
+class AsyncGUI(tk.Tk, DarkMode):
     tasks = set()
 
     def __init__(self, main_loop: asyncio.AbstractEventLoop):
-        super().__init__()
+        tk.Tk.__init__(self)
 
         # These lines are necessary for running asyncio with tkinter
         self.loop = main_loop
@@ -44,8 +45,19 @@ class AsyncGUI(tk.Tk):
         self.logged_in = False
 
         # Add your GUI elements here
+        self._dark_mode = False
         self.title("Boardroom")
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
+
+    def swap_mode(self):
+        self._dark_mode = not self._dark_mode
+        if self._dark_mode:
+            ttk.Style().configure('.', background="#24272b", foreground="#b6bfcc")
+        else:
+            ttk.Style().configure('.', background="#EEEEEE", foreground="#000000")
+        for widget in self.winfo_children():
+            if isinstance(widget, DarkMode):
+                widget.swap_mode()
 
     def clear_window(self, destroy=True, clear_header=False):
         if destroy:

@@ -3,11 +3,13 @@ import tkinter as tk
 from tkinter import ttk
 from math import ceil
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 
-class ResizingText(ttk.Frame):
+
+class ResizingText(ttk.Frame, DarkMode):
     def __init__(self, master: tk.Misc | None, text: str = "", cnf: dict = None, width: int = 100, font=None,
                  dark_mode: bool = False, alt_color=False, dynamic=False, text_padding=0, display_text="", min_height=1, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         self.alt_color = alt_color
         self.editing_enabled = False

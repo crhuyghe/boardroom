@@ -1,13 +1,14 @@
 from tkinter import ttk
 
 from Backend.Classes.Models.User import User
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Components.ResultFrame import ResultFrame
 from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
-class SearchResultsFrame(ttk.Frame):
+class SearchResultsFrame(ttk.Frame, DarkMode):
     def __init__(self, master, database_response, open_command, dark_mode=False, **kwargs):
-        super().__init__(master, **kwargs)
+        ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         if dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")

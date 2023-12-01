@@ -2,10 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Iterable
 
+from Frontend.Classes.Components.DarkModeInterface import DarkMode
+
+
 # Credit to user OysterShucker on StackOverflow
 # https://stackoverflow.com/questions/63926996/tkinter-frame-inside-of-canvas-not-expanding-to-fill-area
 
-class ScrollFrame(tk.Frame):
+class ScrollFrame(tk.Frame, DarkMode):
     def __init__(self, master, dark_mode=False, scrollspeed=5, r=0, c=0, rspan=1, cspan=1, grid={}, **kwargs):
         self.dark_mode = dark_mode
         if dark_mode:
