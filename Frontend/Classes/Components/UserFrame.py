@@ -10,3 +10,8 @@ class UserFrame(ttk.Frame):
 
         self.name_label.grid(row=0)
         self.email_label.grid(row=1)
+
+    def bind(self, *args, **kwargs):
+        super().bind(*args, **kwargs)
+        self.name_label.bind(*args, **kwargs)
+        self.email_label.bind(*args, **kwargs)

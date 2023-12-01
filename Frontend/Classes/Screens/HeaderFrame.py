@@ -68,8 +68,6 @@ class HeaderFrame(ttk.Frame):
         self.user_label = UserFrame(self.right_frame, current_user, style="headerbar.TFrame",
                                     label_style="headerbar.TLabel")
         self.user_label.bind("<Button-1>", self._popup_menu)
-        self.user_label.name_label.bind("<Button-1>", self._popup_menu)
-        self.user_label.email_label.bind("<Button-1>", self._popup_menu)
 
         self.user_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.user_menu.add_command(label="Logout", command=logout_command)
