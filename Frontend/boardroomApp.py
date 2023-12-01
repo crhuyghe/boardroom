@@ -3,8 +3,18 @@ import asyncio
 import json
 import websockets as ws
 from tkinter import ttk
-from ttkthemes import ThemedTk
 from websockets.exceptions import ConnectionClosedError
+
+from Backend.Classes.Models.User import User
+from Frontend.Classes.Screens.ConversationSidebarFrame import ConversationSidebarFrame
+from Frontend.Classes.Screens.CreateAccountFrame import CreateAccountFrame
+from Frontend.Classes.Screens.CreatePostFrame import CreatePostFrame
+from Frontend.Classes.Screens.DirectMessagesFrame import DirectMessagesFrame
+from Frontend.Classes.Screens.FullPostFrame import FullPostFrame
+from Frontend.Classes.Screens.HeaderFrame import HeaderFrame
+from Frontend.Classes.Screens.LoginFrame import LoginFrame
+from Frontend.Classes.Screens.SearchResultsFrame import SearchResultsFrame
+from Frontend.Classes.Screens.WelcomeFrame import WelcomeFrame
 
 class AsyncGUI(tk.Tk):
     tasks = set()
@@ -36,13 +46,16 @@ class AsyncGUI(tk.Tk):
         # Add your GUI elements here
         self.title("Boardroom")
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
-        # self.frame = ttk.Frame()
-        test_message = {"action": 1, "email": "cave.johnson@aperture.com", "password": "IH8Lemons"}
-        # self.test_button = ttk.Button(self.frame, text="Test Button",
-        #                               command=lambda: self.run_as_task(self.send_message, test_message))
-        # self.test_button.pack(side="top")
 
-        # self.frame.pack(fill="both", expand=1)
+    def clear_window(self, destroy=True, clear_header=False):
+        if destroy:
+            for widget in self.winfo_children():
+                if type(widget) != HeaderFrame or clear_header:
+                    widget.destroy()
+        else:
+            for widget in self.winfo_children():
+                if type(widget) != HeaderFrame or clear_header:
+                    widget.grid_forget()
 
     def run_as_task(self, func, *args):
         task = self.loop.create_task(func(*args))
@@ -136,4 +149,3 @@ if __name__ == "__main__":
     app = AsyncGUI(loop)
     loop.run_forever()
     loop.close()
-
