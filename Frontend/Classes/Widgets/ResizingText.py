@@ -112,14 +112,14 @@ class ResizingText(ttk.Frame, DarkMode):
         self.text_widget.configure(state="normal")
         self.text_widget.delete(1.0, "end")
         self.text_widget.insert(1.0, text)
-        height = self.text_widget.count(1.0, "end", "update", "displaylines")
-        self.text_widget.configure(height=height, state=state)
+        self.text_widget.configure(state=state)
         if len(text) == 0:
             self._empty = True
             if self.editing_enabled:
                 self.check_display_text()
         else:
             self._empty = False
+        self._update_size()
 
     def toggle_modification(self):
         self.editing_enabled = not self.editing_enabled
