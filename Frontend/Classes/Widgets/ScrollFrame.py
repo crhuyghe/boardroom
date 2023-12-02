@@ -9,12 +9,19 @@ from Frontend.Classes.Components.DarkModeInterface import DarkMode
 # https://stackoverflow.com/questions/63926996/tkinter-frame-inside-of-canvas-not-expanding-to-fill-area
 
 class ScrollFrame(tk.Frame, DarkMode):
-    def __init__(self, master, dark_mode=False, scrollspeed=5, r=0, c=0, rspan=1, cspan=1, grid={}, **kwargs):
+    def __init__(self, master, dark_mode=False, alt_color=False, scrollspeed=5, r=0, c=0, rspan=1, cspan=1, grid={}, **kwargs):
         self.dark_mode = dark_mode
+        self.alt_color = alt_color
         if dark_mode:
-            bg = "#24272b"
+            if alt_color:
+                bg = "#1f2226"
+            else:
+                bg = "#24272b"
         else:
-            bg = "#FFFFFF"
+            if alt_color:
+                bg = "#DDDDDD"
+            else:
+                bg = "#FFFFFF"
         kwargs["background"] = bg
         tk.Frame.__init__(self, master, **{'width': 400, 'height': 300, **kwargs})
 
@@ -88,9 +95,15 @@ class ScrollFrame(tk.Frame, DarkMode):
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
-            bg = "#24272b"
+            if self.alt_color:
+                bg = "#1f2226"
+            else:
+                bg = "#24272b"
         else:
-            bg = "#FFFFFF"
+            if self.alt_color:
+                bg = "#DDDDDD"
+            else:
+                bg = "#FFFFFF"
         self.canvas.configure(bg=bg)
         self.frame.configure(bg=bg)
         self.configure(bg=bg)

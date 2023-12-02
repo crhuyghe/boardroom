@@ -31,10 +31,10 @@ class MessageFrame(ttk.Frame, DarkMode):
             self.edited_label.grid(row=6, column=28)
 
         self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
-        self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
+        self.rc_menu.add_command(label="Copy", command=self._copy_text)
         if is_owned:
-            self.rc_menu.add_command(label="Edit", command=lambda: edit_command(message_id))
-            self.rc_menu.add_command(label="Delete", command=lambda: delete_command(message_id))
+            self.rc_menu.add_command(label="Edit", command=lambda: edit_command)
+            self.rc_menu.add_command(label="Delete", command=lambda: delete_command)
         self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         if show_header:

@@ -20,7 +20,7 @@ class WelcomeFrame(ttk.Frame, DarkMode):
                                             text="Message your friends,\nsearch for boardrooms,\nor create your own!",
                                             font=("Segoe UI Bold", 20), justify="center")
 
-        self.create_post_button = FlatButton(self, dark_mode, text="Create Boardroom", command=lambda: create_post_command,
+        self.create_post_button = FlatButton(self, dark_mode, text="Create Boardroom", command=create_post_command,
                                              style="create.TLabel", font=("Segoe UI Bold", 20))
         self.welcome_name_label.grid(row=1, column=1, sticky="s")
         self.welcome_text_label.grid(row=2, column=1, sticky="n")

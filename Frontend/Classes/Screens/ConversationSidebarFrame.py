@@ -40,13 +40,15 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
         self.recipient_entry.grid(row=1, column=0, padx=30, pady=10)
         self.message_entry.grid(row=2, column=0, padx=30, pady=10)
 
-        border_horizontal = ttk.Frame(self.send_frame, height=3, style="border.TFrame")
-        border_vertical = ttk.Frame(self.send_frame, width=3, style="border.TFrame")
-        border_horizontal.grid(row=0, column=0, sticky="new")
-        border_vertical.grid(row=0, rowspan=3, column=0, sticky="nes")
-        self.border_list.append(border_horizontal)
-        self.border_list.append(border_vertical)
-
+        send_border_horizontal = ttk.Frame(self.send_frame, height=3, style="border.TFrame")
+        send_border_vertical_r = ttk.Frame(self.send_frame, width=3, style="border.TFrame")
+        send_border_vertical_l = ttk.Frame(self.send_frame, width=3, style="border.TFrame")
+        send_border_horizontal.grid(row=0, column=0, sticky="new")
+        send_border_vertical_r.grid(row=0, rowspan=3, column=0, sticky="nes")
+        send_border_vertical_l.grid(row=0, rowspan=3, column=0, sticky="nws")
+        self.border_list.append(send_border_horizontal)
+        self.border_list.append(send_border_vertical_r)
+        self.border_list.append(send_border_vertical_l)
 
         self.conversation_list = []
 
@@ -54,7 +56,7 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
                                                                                 '%Y-%m-%d %X.%f'), reverse=True)
 
         if len(database_response["conversations"]) > 0:
-            self.conversations_frame = ScrollFrame(self, dark_mode)
+            self.conversations_frame = ScrollFrame(self, dark_mode, True)
             for conversation in database_response["conversations"]:
                 recipient = conversation["recipient"]
                 recipient = User(recipient["id"], recipient["email"], recipient["name"])

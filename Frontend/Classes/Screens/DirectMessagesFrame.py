@@ -74,8 +74,10 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
                 padding = [0, 10, 0, 0]
 
             message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
-                                   self.messages[i]["id"], edit_command, delete_command, post_time, header,
-                                   self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
+                                   self.messages[i]["id"],
+                                   lambda text: edit_command(self.recipient.id, self.messages[i]["id"], text),
+                                   lambda: delete_command(self.recipient.id, self.messages[i]["id"]), post_time,
+                                   header, self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
                                    dark_mode, 90, padding=padding)
 
             message.pack(side="top")
@@ -90,7 +92,7 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
         self.send_box.toggle_modification()
 
         self.send_button = FlatButton(self.footer_frame, dark_mode=dark_mode, text="Send",
-                                      command=lambda: send_command(self.send_box.get_text(), self.recipient.id))
+                                      command=lambda: self._execute_send_command(send_command))
 
         self.send_button.pack(side="right", padx=(30, 0))
         self.send_box.pack(side="left", fill="x", expand=True)
@@ -101,6 +103,11 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
 
         self.grid_rowconfigure(1, weight=20)
         self.grid_rowconfigure(0, weight=1)
+
+    def _execute_send_command(self, send_command):
+        if len(self.send_box.get_text().replace(" ", "").replace("\n", "")) > 0:
+            send_command(self.send_box.get_text(), self.recipient.id)
+            self.send_box.change_text("")
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
