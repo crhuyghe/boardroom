@@ -51,17 +51,17 @@ class AsyncGUI(tk.Tk, DarkMode):
         ttk.Style().configure('.', font=('Segoe UI Symbol', 16))
         self.configure(background="#EEEEEE")
         self._dark_mode = False
-        self.swap_mode()
-        self.state('zoomed')
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
+        # self.swap_mode()
+        # self.state('zoomed')
+        # self.grid_rowconfigure(1, weight=1)
+        # self.grid_columnconfigure(0, weight=1)
 
         self.headerbar = None
         self.welcome_frame = None
         self.conversations_sidebar = None
         self.post_creation = None
 
-        self.run_as_task(self.launch_homepage)
+        # self.run_as_task(self.launch_homepage)
 
     def swap_mode(self):
         self._dark_mode = not self._dark_mode
@@ -90,8 +90,9 @@ class AsyncGUI(tk.Tk, DarkMode):
 
         self.welcome_frame = WelcomeFrame(self, self.user, self.show_post_creation, self._dark_mode)
         self.conversations_sidebar = ConversationSidebarFrame(self, await self.get_conversations(),
-                                                              lambda rid: self.run_as_task(self.show_direct_messages,
-                                                                                           rid), self._dark_mode)
+                                                         lambda rid: self.run_as_task(self.show_direct_messages, rid),
+                                                         lambda remail, txt: self.run_as_task(self, remail, txt),
+                                                         self._dark_mode)
 
         if self.headerbar is None:
             self.headerbar = HeaderFrame(self, self.user, lambda: self.run_as_task(self.launch_homepage),
@@ -154,7 +155,7 @@ class AsyncGUI(tk.Tk, DarkMode):
         #         {"recipient": {"name": "Steve Jobs", "email": "sjobs@apple.com", "picture": False, "id": 7}, "last_message": text, "last_message_time": format(time-timedelta(weeks=257))},
         #         ]}
 
-    async def send_message(self, recipient_id, text):
+    async def send_user_message(self, recipient_id, text):
         pass
 
     async def edit_message(self, recipient_id, message_id, text):
