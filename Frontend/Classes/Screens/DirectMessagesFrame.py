@@ -105,7 +105,7 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
 
     def _execute_send_command(self, send_command):
         if len(self.send_box.get_text().replace(" ", "").replace("\n", "")) > 0:
-            send_command(self.send_box.get_text(), self.recipient.id)
+            send_command(self.recipient.email, self.send_box.get_text())
             self.send_box.change_text("")
 
     def swap_mode(self):
