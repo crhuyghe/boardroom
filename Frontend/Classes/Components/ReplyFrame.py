@@ -119,7 +119,7 @@ class ReplyFrame(ttk.Frame, DarkMode):
     def _execute_edit_command(self, edit_command):
         text = self.text_label.get_text()
         if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
-            edit_command(self.post_id, self.reply_id, text)
+            edit_command(text, self.post_id, self.reply_id)
 
     def _enable_editing(self, edit_command):
         self.edit_text.set("Submit Edits")
