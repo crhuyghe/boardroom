@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, BooleanVar
+from tkinter import ttk, BooleanVar, StringVar
 
 from Frontend.Classes.Components.DarkModeInterface import DarkMode
 from Frontend.Classes.Components.UserFrame import UserFrame
@@ -74,7 +74,24 @@ class HeaderFrame(ttk.Frame, DarkMode):
 
         self.user_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.user_menu.add_command(label="Logout", command=logout_command)
-        self.user_menu.add_command(label="Delete Account", command=delete_account_command)
+        self.user_menu.add_command(label="Delete Account", command=self._show_password_input)
+
+        self.password_frame = ttk.Frame(self.right_frame, style="headerbar.TFrame")
+        self.password_label = ttk.Label(self.password_frame, style="headerbar.TLabel", font=('Segoe UI Symbol', 10),
+                                        text="Enter password to confirm deletion")
+        self.password = StringVar()
+        self.password_entry = ttk.Entry(self.password_frame, show="*", textvariable=self.password,
+                                        font=('Segoe UI Symbol', 10), foreground="#000000")
+        self.cancel_button = FlatButton(self.password_frame, text="Cancel", command=self._hide_password_input)
+        self.confirm_button = FlatButton(self.password_frame, text="Confirm",
+                                         command=lambda: self._execute_delete_account_command(delete_account_command))
+        self.error_label = ttk.Label(self.password_frame, style="headerbar.TLabel", foreground="red",
+                                     font=('Segoe UI Symbol', 10), text="Incorrect password")
+
+        self.password_label.grid(row=0, column=0, columnspan=2)
+        self.password_entry.grid(row=1, column=0, columnspan=2)
+        self.cancel_button.grid(row=2, column=0, padx=(0, 5), pady=5, sticky="e")
+        self.confirm_button.grid(row=2, column=1, padx=(5, 0), pady=5, sticky="w")
 
         self.user_label.pack(fill="y", expand=1, side="right")
         self.user_label.email_label.configure(foreground=email_fg)
@@ -91,9 +108,23 @@ class HeaderFrame(ttk.Frame, DarkMode):
         # self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure("all", weight=1, uniform="header")
 
+    def _show_password_input(self):
+        self.password_frame.pack(side="right")
+    def _hide_password_input(self):
+        self.password_frame.pack_forget()
+        self.error_label.grid_forget()
+
+    def _execute_delete_account_command(self, delete_command):
+        password = self.password.get()
+        if len(password) > 0:
+            delete_command(password)
+
     def _execute_search_command(self, search_command):
         if len(self.searchbox.get_text()) > 0 or len(self.tag_searchbox.get_text()) > 0:
             search_command(self.searchbox.get_text(), self.tag_searchbox.get_text().split())
+
+    def show_error(self):
+        self.error_label.grid(row=3, column=0, columnspan=2)
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
@@ -117,6 +148,8 @@ class HeaderFrame(ttk.Frame, DarkMode):
             self.home_button.configure(foreground="#ab0323")
         self.searchbox.swap_mode()
         self.tag_searchbox.swap_mode()
+        self.confirm_button.swap_mode()
+        self.cancel_button.swap_mode()
 
     def _popup_menu(self, event):
         try:
