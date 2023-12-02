@@ -57,7 +57,7 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
             else:
                 sender = self.recipient
 
-            if i > 0 and self.messages[i-1]["id"] == sender.id:
+            if i > 0 and self.messages[i-1]["sender_message"] == self.messages[i]["sender_message"]:
                 prev_time = datetime.strptime(self.messages[i-1]["time"], '%Y-%m-%d %X.%f')
                 curr_time = datetime.strptime(self.messages[i]["time"], '%Y-%m-%d %X.%f')
                 if prev_time + timedelta(minutes=2) > curr_time:
@@ -72,7 +72,6 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
                 header = True
                 post_time = self.messages[i]["time"]
                 padding = [0, 10, 0, 0]
-
             message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
                                    self.messages[i]["id"],
                                    lambda text: edit_command(self.recipient.id, self.messages[i]["id"], text),

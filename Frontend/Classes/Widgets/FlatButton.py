@@ -26,6 +26,10 @@ class FlatButton(ttk.Label, DarkMode):
         else:
             ttk.Style().configure("flatbuttonactive.TLabel", background="#DDDDDD")
 
+    def change_command(self, command):
+        self.unbind("<Button-1>")
+        self.bind("<Button-1>", lambda _: self._execute(command))
+
     def _execute(self, command):
         self._sim_button()
         if command:

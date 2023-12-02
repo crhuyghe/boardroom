@@ -19,6 +19,7 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         self.is_edited = is_edited
         self.is_owned = is_owned
         self.dark_mode = dark_mode
+        self._text = text
 
         if dark_mode:
             time_foreground = "#a6afbc"
@@ -40,12 +41,15 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
         if is_owned:
-            self.rc_menu.add_command(label="Edit", command=lambda: edit_command(post_id))
-            self.rc_menu.add_command(label="Delete", command=lambda: delete_command(post_id))
+            self.rc_menu.add_command(label="Edit", command=lambda: self._enable_editing(edit_command))
+            self.del_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
+            self.del_menu.add_command(label="Yes", command=lambda: delete_command(post_id))
+            self.del_menu.add_command(label="No")
+            self.rc_menu.add_cascade(label="Delete", menu=self.del_menu)
         self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
-        self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
+        self.like_button.bind("<Button-1>", lambda x: self._execute_like_command(like_command))
 
         if is_liked:
             self.like_button.configure(image=self.liked_image)
@@ -61,10 +65,17 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         self.view_count_label = ttk.Label(self, textvariable=self.view_count, padding=5, font=("Segoe UI Historic", 8))
 
         if is_owned:
-            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode,
-                                          command=lambda: edit_command(post_id))
-            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode,
-                                            command=lambda: delete_command(post_id))
+            self.edit_text = StringVar()
+            self.edit_text.set("Edit Post")
+            self.edit_button = FlatButton(self, textvariable=self.edit_text, dark_mode=dark_mode,
+                                          command=lambda: self._enable_editing(edit_command))
+            self.delete_text = StringVar()
+            self.delete_text.set("Delete Post")
+            self.delete_button = FlatButton(self, textvariable=self.delete_text, dark_mode=dark_mode,
+                                            command=lambda: self._execute_delete_command(delete_command))
+
+            self.cancel_edit_button = FlatButton(self, text="Cancel", dark_mode=dark_mode,
+                                                 command=lambda: self._disable_editing(edit_command))
 
             self.edit_button.grid(row=6, column=23)
             self.delete_button.grid(row=6, column=24)
@@ -81,7 +92,7 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         self.time_label = ttk.Label(self, text=post_time, font=("Segoe UI Symbol", 8), foreground=time_foreground)
         self.time_label.grid(row=6, column=26)
 
-        self.reply_button = FlatButton(self, text="Reply", dark_mode=dark_mode, command=lambda: reply_command(post_id))
+        self.reply_button = FlatButton(self, text="Reply", dark_mode=dark_mode, command=reply_command)
         self.reply_button.grid(row=6, column=25)
 
         self.user_frame = UserFrame(self, poster)
@@ -95,7 +106,7 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         self.grid_columnconfigure("all", weight=1)
         self.grid_rowconfigure("all", weight=1)
 
-    def execute_like_command(self, like_command):
+    def _execute_like_command(self, like_command):
         self.is_liked = not self.is_liked
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
@@ -105,6 +116,40 @@ class BoardroomFrame(ttk.Frame, DarkMode):
             self.like_count.set(str(int(self.like_count.get()) - 1))
         like_command(self.post_id)
 
+    def _execute_delete_command(self, delete_command):
+        self.delete_text.set("Are you sure?")
+        self.delete_button.configure(foreground="red")
+        self.delete_button.change_command(lambda: delete_command(self.post_id))
+        self.delete_button.after(5000, lambda: self._reset_delete_button(delete_command))
+
+    def _reset_delete_button(self, delete_command):
+        self.delete_text.set("Delete Post")
+        if self.dark_mode:
+            self.delete_button.configure(foreground="#b6bfcc")
+        else:
+            self.delete_button.configure(foreground="#000000")
+        self.delete_button.change_command(lambda: self._execute_delete_command(delete_command))
+
+    def _execute_edit_command(self, edit_command):
+        text = self.text_label.get_text()
+        if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
+            edit_command(self.post_id, text)
+
+    def _enable_editing(self, edit_command):
+        self.edit_text.set("Submit Edits")
+        self.rc_menu.entryconfig("Edit", state="disabled")
+        self.edit_button.change_command(lambda: self._execute_edit_command(edit_command))
+        self.cancel_edit_button.grid(row=6, column=22)
+        self.text_label.toggle_modification()
+
+    def _disable_editing(self, edit_command):
+        self.edit_text.set("Edit Post")
+        self.rc_menu.entryconfig("Edit", state="normal")
+        self.edit_button.change_command(lambda: self._enable_editing(edit_command))
+        self.cancel_edit_button.grid_forget()
+        self.text_label.toggle_modification()
+        self.text_label.change_text(self._text)
+
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
@@ -113,12 +158,16 @@ class BoardroomFrame(ttk.Frame, DarkMode):
             self.time_label.configure(foreground="#a6afbc")
             self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
             ttk.Style().configure("title.TLabel", background="#292c30")
+            if self.is_owned:
+                self.del_menu.configure(background="#1f2226", foreground="#b6bfcc")
         else:
             self.liked_image.configure(file="Assets/liked_light.png")
             self.not_liked_image.configure(file="Assets/not_liked_light.png")
             self.time_label.configure(foreground="#222222")
             self.rc_menu.configure(background="#eeeeee", foreground="#000000")
             ttk.Style().configure("title.TLabel", background="#EEEEEE")
+            if self.is_owned:
+                self.del_menu.configure(background="#eeeeee", foreground="#000000")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
         else:
@@ -129,6 +178,7 @@ class BoardroomFrame(ttk.Frame, DarkMode):
         if self.is_owned:
             self.edit_button.swap_mode()
             self.delete_button.swap_mode()
+            self.cancel_edit_button.swap_mode()
 
     def tag_edited(self):
         if not self.is_edited:

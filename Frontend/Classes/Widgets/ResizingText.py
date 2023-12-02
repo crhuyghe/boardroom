@@ -105,7 +105,7 @@ class ResizingText(ttk.Frame, DarkMode):
         if self._empty or fg == "#888888" or fg == "#666666":
             return ""
         else:
-            return self.text_widget.get(1.0, "end")
+            return self.text_widget.get(1.0, "end")[:-1]
 
     def change_text(self, text):
         state = self.text_widget.cget("state")

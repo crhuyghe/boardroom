@@ -94,8 +94,6 @@ class HeaderFrame(ttk.Frame, DarkMode):
     def _execute_search_command(self, search_command):
         if len(self.searchbox.get_text()) > 0 or len(self.tag_searchbox.get_text()) > 0:
             search_command(self.searchbox.get_text(), self.tag_searchbox.get_text().split())
-            self.searchbox.change_text("")
-            self.tag_searchbox.change_text("")
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode

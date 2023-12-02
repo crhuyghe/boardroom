@@ -4,14 +4,16 @@ from tkinter import ttk
 from Backend.Classes.Models.User import User
 from Frontend.Classes.Components.ConversationFrame import ConversationFrame
 from Frontend.Classes.Components.DarkModeInterface import DarkMode
+from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 from Frontend.Classes.Widgets.ScrollFrame import ScrollFrame
 
 
 class ConversationSidebarFrame(ttk.Frame, DarkMode):
-    def __init__(self, master, database_response, open_command, dark_mode=False, **kwargs):
+    def __init__(self, master, database_response, open_command, send_command, dark_mode=False, **kwargs):
         ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
+        self.error_active = False
         if dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")
             ttk.Style().configure("send.TFrame", background="#1f2226")
@@ -33,19 +35,25 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
                                           text_padding=(5, 5), width=80, padding=10)
         self.message_entry = ResizingText(self.send_frame, dark_mode=dark_mode, dynamic=True,
                                           font=('Segoe UI Symbol', 10), display_text="Enter a message...",
-                                          text_padding=(5, 5), width=80, padding=10)
+                                          text_padding=(5, 5), width=80, padding=10, min_height=3)
         self.recipient_entry.toggle_modification()
         self.message_entry.toggle_modification()
+        self.send_button = FlatButton(self.send_frame, dark_mode=dark_mode, text="Send",
+                                      command=lambda: self._execute_send_command(send_command))
+        self.error_label = ttk.Label(self.send_frame, text="The specified recipient could not be found",
+                                     foreground="red", font=('Segoe UI Symbol', 10), style="send.TLabel")
+
         self.send_label.grid(row=0, column=0, padx=30, pady=10)
         self.recipient_entry.grid(row=1, column=0, padx=30, pady=10)
         self.message_entry.grid(row=2, column=0, padx=30, pady=10)
+        self.send_button.grid(row=3, column=0, pady=10)
 
         send_border_horizontal = ttk.Frame(self.send_frame, height=3, style="border.TFrame")
         send_border_vertical_r = ttk.Frame(self.send_frame, width=3, style="border.TFrame")
         send_border_vertical_l = ttk.Frame(self.send_frame, width=3, style="border.TFrame")
         send_border_horizontal.grid(row=0, column=0, sticky="new")
-        send_border_vertical_r.grid(row=0, rowspan=3, column=0, sticky="nes")
-        send_border_vertical_l.grid(row=0, rowspan=3, column=0, sticky="nws")
+        send_border_vertical_r.grid(row=0, rowspan=5, column=0, sticky="nes")
+        send_border_vertical_l.grid(row=0, rowspan=5, column=0, sticky="nws")
         self.border_list.append(send_border_horizontal)
         self.border_list.append(send_border_vertical_r)
         self.border_list.append(send_border_vertical_l)
@@ -88,6 +96,22 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
+    def _execute_send_command(self, send_command):
+        text = self.message_entry.get_text()
+        recipient = self.recipient_entry.get_text()
+        if len(text.replace(" ", "").replace("\n", "")) > 0 and len(recipient.replace(" ", "").replace("\n", "")) > 0:
+            send_command(recipient, text)
+
+    def show_error(self):
+        if not self.error_active:
+            self.error_active = True
+            self.error_label.grid(row=4, column=0, pady=10)
+
+    def hide_error(self):
+        if self.error_active:
+            self.error_active = False
+            self.error_label.grid_forget()
+
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if len(self.conversation_list) > 0:
@@ -103,6 +127,7 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
 
         self.recipient_entry.swap_mode()
         self.message_entry.swap_mode()
+        self.send_button.swap_mode()
 
         for conversation_frame in self.conversation_list:
             conversation_frame.swap_mode()

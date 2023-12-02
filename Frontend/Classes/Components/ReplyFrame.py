@@ -18,6 +18,7 @@ class ReplyFrame(ttk.Frame, DarkMode):
         self.is_edited = is_edited
         self.is_owned = is_owned
         self.dark_mode = dark_mode
+        self._text = text
 
         self.text_label = ResizingText(self, text, width=width, dark_mode=self.dark_mode, font=("Segoe UI Symbol", 14),
                                        padding=[25, 0, 0, 5])
@@ -35,8 +36,11 @@ class ReplyFrame(ttk.Frame, DarkMode):
         self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
         if is_owned:
-            self.rc_menu.add_command(label="Edit", command=lambda: edit_command(post_id, reply_id))
-            self.rc_menu.add_command(label="Delete", command=lambda: delete_command(post_id, reply_id))
+            self.rc_menu.add_command(label="Edit", command=lambda: self._enable_editing(edit_command))
+            self.del_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
+            self.del_menu.add_command(label="Yes", command=lambda: delete_command(post_id, reply_id))
+            self.del_menu.add_command(label="No")
+            self.rc_menu.add_cascade(label="Delete", menu=self.del_menu)
         self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
@@ -52,13 +56,20 @@ class ReplyFrame(ttk.Frame, DarkMode):
                                           font=("Segoe UI Historic", 8))
 
         if is_owned:
-            self.edit_button = FlatButton(self, text="Edit Post", dark_mode=dark_mode,
-                                          command=lambda: edit_command(reply_id, post_id))
-            self.delete_button = FlatButton(self, text="Delete Post", dark_mode=dark_mode,
-                                            command=lambda: edit_command(reply_id, post_id))
+            self.edit_text = StringVar()
+            self.edit_text.set("Edit Reply")
+            self.edit_button = FlatButton(self, textvariable=self.edit_text, dark_mode=dark_mode,
+                                          command=lambda: self._enable_editing(edit_command))
+            self.delete_text = StringVar()
+            self.delete_text.set("Delete Reply")
+            self.delete_button = FlatButton(self, textvariable=self.delete_text, dark_mode=dark_mode,
+                                            command=lambda: self._execute_delete_command(delete_command))
 
-            self.edit_button.grid(row=6, column=19, columnspan=4, sticky="e")
-            self.delete_button.grid(row=6, column=23, columnspan=4, sticky="w")
+            self.cancel_edit_button = FlatButton(self, text="Cancel", dark_mode=dark_mode,
+                                                 command=lambda: self._disable_editing(edit_command))
+
+            self.edit_button.grid(row=6, column=18, columnspan=4)
+            self.delete_button.grid(row=6, column=22, columnspan=4, sticky="w")
 
         if is_edited:
             self.edited_label = ttk.Label(self, text="(edited)", foreground="#AAAAAA", font=("Segoe UI Symbol", 8))
@@ -91,6 +102,40 @@ class ReplyFrame(ttk.Frame, DarkMode):
             self.like_count.set(str(int(self.like_count.get()) - 1))
         like_command(self.post_id, self.reply_id)
 
+    def _execute_delete_command(self, delete_command):
+        self.delete_text.set("Are you sure?")
+        self.delete_button.configure(foreground="red")
+        self.delete_button.change_command(lambda: delete_command(self.post_id, self.reply_id))
+        self.delete_button.after(5000, lambda: self._reset_delete_button(delete_command))
+
+    def _reset_delete_button(self, delete_command):
+        self.delete_text.set("Delete Reply")
+        if self.dark_mode:
+            self.delete_button.configure(foreground="#b6bfcc")
+        else:
+            self.delete_button.configure(foreground="#000000")
+        self.delete_button.change_command(lambda: self._execute_delete_command(delete_command))
+
+    def _execute_edit_command(self, edit_command):
+        text = self.text_label.get_text()
+        if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
+            edit_command(self.post_id, self.reply_id, text)
+
+    def _enable_editing(self, edit_command):
+        self.edit_text.set("Submit Edits")
+        self.rc_menu.entryconfig("Edit", state="disabled")
+        self.edit_button.change_command(lambda: self._execute_edit_command(edit_command))
+        self.cancel_edit_button.grid(row=6, column=14, columnspan=4, sticky="e")
+        self.text_label.toggle_modification()
+
+    def _disable_editing(self, edit_command):
+        self.edit_text.set("Edit Reply")
+        self.rc_menu.entryconfig("Edit", state="normal")
+        self.edit_button.change_command(lambda: self._enable_editing(edit_command))
+        self.cancel_edit_button.grid_forget()
+        self.text_label.toggle_modification()
+        self.text_label.change_text(self._text)
+
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
@@ -98,11 +143,15 @@ class ReplyFrame(ttk.Frame, DarkMode):
             self.not_liked_image.configure(file="Assets/not_liked_dark.png")
             self.time_label.configure(foreground="#a6afbc")
             self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
+            if self.is_owned:
+                self.del_menu.configure(background="#1f2226", foreground="#b6bfcc")
         else:
             self.liked_image.configure(file="Assets/liked_light.png")
             self.not_liked_image.configure(file="Assets/not_liked_light.png")
             self.time_label.configure(foreground="#222222")
             self.rc_menu.configure(background="#eeeeee", foreground="#000000")
+            if self.is_owned:
+                self.del_menu.configure(background="#eeeeee", foreground="#000000")
         if self.is_liked:
             self.like_button.configure(image=self.liked_image)
         else:
@@ -111,6 +160,7 @@ class ReplyFrame(ttk.Frame, DarkMode):
         if self.is_owned:
             self.edit_button.swap_mode()
             self.delete_button.swap_mode()
+            self.cancel_edit_button.swap_mode()
 
     def tag_edited(self):
         if not self.is_edited:

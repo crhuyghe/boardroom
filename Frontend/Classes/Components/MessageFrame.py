@@ -3,6 +3,7 @@ from tkinter import ttk
 from datetime import datetime
 
 from Frontend.Classes.Components.DarkModeInterface import DarkMode
+from Frontend.Classes.Widgets.FlatButton import FlatButton
 from Frontend.Classes.Widgets.ResizingText import ResizingText
 
 
@@ -11,8 +12,10 @@ class MessageFrame(ttk.Frame, DarkMode):
         ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         self.show_header = show_header
+        self.is_owned = is_owned
         self.message_id = message_id
         self.poster = poster
+        self._text = text
 
         if dark_mode:
             time_color = "#999999"
@@ -33,8 +36,16 @@ class MessageFrame(ttk.Frame, DarkMode):
         self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.rc_menu.add_command(label="Copy", command=self._copy_text)
         if is_owned:
-            self.rc_menu.add_command(label="Edit", command=lambda: edit_command)
-            self.rc_menu.add_command(label="Delete", command=lambda: delete_command)
+            self.rc_menu.add_command(label="Edit", command=self._enable_editing)
+            self.del_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
+            self.del_menu.add_command(label="Yes", command=delete_command)
+            self.del_menu.add_command(label="No")
+            self.rc_menu.add_cascade(label="Delete", menu=self.del_menu)
+
+            self.cancel_edit_button = FlatButton(self, text="Cancel", dark_mode=dark_mode,
+                                                 command=self._disable_editing)
+            self.submit_edit_button = FlatButton(self, text="Submit Edits", dark_mode=dark_mode,
+                                                 command=lambda: self._execute_edit_command(edit_command))
         self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
 
         if show_header:
@@ -57,6 +68,24 @@ class MessageFrame(ttk.Frame, DarkMode):
         self.grid_columnconfigure("all", weight=1)
         self.grid_rowconfigure("all", weight=1)
 
+    def _execute_edit_command(self, edit_command):
+        text = self.text_label.get_text()
+        if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
+            edit_command(text)
+
+    def _enable_editing(self):
+        self.rc_menu.entryconfig("Edit", state="disabled")
+        self.cancel_edit_button.grid(row=6, column=22)
+        self.submit_edit_button.grid(row=6, column=23)
+        self.text_label.toggle_modification()
+
+    def _disable_editing(self):
+        self.rc_menu.entryconfig("Edit", state="normal")
+        self.cancel_edit_button.grid_forget()
+        self.submit_edit_button.grid_forget()
+        self.text_label.toggle_modification()
+        self.text_label.change_text(self._text)
+
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
@@ -64,12 +93,19 @@ class MessageFrame(ttk.Frame, DarkMode):
                 self.time_label.configure(foreground="#999999")
                 self.name_label.configure(foreground="#DDDDDD")
             self.rc_menu.configure(background="#1f2226", foreground="#b6bfcc")
+            if self.is_owned:
+                self.del_menu.configure(background="#1f2226", foreground="#b6bfcc")
         else:
             if self.show_header:
                 self.time_label.configure(foreground="#222222")
                 self.name_label.configure(foreground="#444444")
             self.rc_menu.configure(background="#eeeeee", foreground="#000000")
+            if self.is_owned:
+                self.del_menu.configure(background="#eeeeee", foreground="#000000")
         self.text_label.swap_mode()
+        if self.is_owned:
+            self.submit_edit_button.swap_mode()
+            self.cancel_edit_button.swap_mode()
 
     def _popup_menu(self, event):
         try:
