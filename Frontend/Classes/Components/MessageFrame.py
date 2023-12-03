@@ -46,7 +46,7 @@ class MessageFrame(ttk.Frame, DarkMode):
                                                  command=self._disable_editing)
             self.submit_edit_button = FlatButton(self, text="Submit Edits", dark_mode=dark_mode,
                                                  command=lambda: self._execute_edit_command(edit_command))
-        self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
+        self.text_label.text_widget.bind("<Button-3>", lambda e=None: self._popup_menu(e) if e else None)
 
         if show_header:
             self.header_frame = ttk.Frame(self)
@@ -72,6 +72,9 @@ class MessageFrame(ttk.Frame, DarkMode):
         text = self.text_label.get_text()
         if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
             edit_command(text)
+            self._text = text
+            self._disable_editing()
+            self.edited_label.grid(row=6, column=28)
 
     def _enable_editing(self):
         self.rc_menu.entryconfig("Edit", state="disabled")

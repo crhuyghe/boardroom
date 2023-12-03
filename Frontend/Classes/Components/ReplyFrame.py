@@ -41,10 +41,10 @@ class ReplyFrame(ttk.Frame, DarkMode):
             self.del_menu.add_command(label="Yes", command=lambda: delete_command(post_id, reply_id))
             self.del_menu.add_command(label="No")
             self.rc_menu.add_cascade(label="Delete", menu=self.del_menu)
-        self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e))
+        self.text_label.text_widget.bind("<Button-3>", lambda e: self._popup_menu(e) if e else None)
 
         self.like_button = ttk.Label(self, padding=0, cursor="hand2")
-        self.like_button.bind("<Button-1>", lambda x: self.execute_like_command(like_command))
+        self.like_button.bind("<Button-1>", lambda t=None: self.execute_like_command(like_command) if t else None)
         if is_liked:
             self.like_button.configure(image=self.liked_image)
         else:

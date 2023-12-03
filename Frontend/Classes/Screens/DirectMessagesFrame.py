@@ -108,6 +108,50 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
             send_command(self.recipient.email, self.send_box.get_text())
             self.send_box.change_text("")
 
+    def delete_message_widget(self, message_id):
+        for i in range(len(self.message_frames)-1, -1, -1):
+            if self.message_frames[i].message_id == message_id:
+                self.message_frames[i].destroy()
+                self.message_frames.remove(self.message_frames[i])
+                self.messages.remove(self.messages[i])
+
+    def edit_message_record(self, message_id, text):
+        for i in range(len(self.messages)):
+            if int(self.messages[i]["id"]) == message_id:
+                self.messages[i]["text"] = text
+                self.messages[i]["message_is_edited"] = True
+
+    def append_message(self, message, edit_command, delete_command):
+        if message["sender_message"]:
+            sender = self.current_user
+        else:
+            sender = self.recipient
+
+        if len(self.messages) > 0 and self.messages[-1]["sender_message"] == message["sender_message"]:
+            prev_time = datetime.strptime(self.messages[-1]["time"], '%Y-%m-%d %X.%f')
+            curr_time = datetime.strptime(message["time"], '%Y-%m-%d %X.%f')
+            if prev_time + timedelta(minutes=2) > curr_time:
+                header = False
+                post_time = ""
+                padding = [0, 5, 0, 0]
+            else:
+                header = True
+                post_time = message["time"]
+                padding = [0, 30, 0, 0]
+        else:
+            header = True
+            post_time = message["time"]
+            padding = [0, 30, 0, 0]
+        new_message = MessageFrame(self.message_list.frame, message["text"], sender,
+                               message["id"],
+                               lambda text: edit_command(self.recipient.id, message["id"], text),
+                               lambda: delete_command(self.recipient.id, message["id"]), post_time,
+                               header, message["sender_message"], message["message_is_edited"],
+                               self.dark_mode, 90, padding=padding)
+        new_message.pack(side="top")
+        self.message_frames.append(new_message)
+        self.messages.append(message)
+
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         for frame in self.message_frames:
