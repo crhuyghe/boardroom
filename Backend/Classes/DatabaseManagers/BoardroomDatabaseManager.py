@@ -220,13 +220,9 @@ class BoardroomDatabaseManager:
                                                                        "reply_id": reply_id}])), ignore_index=True)
             self.__update_likes()
         else:
-            print(post_id, reply_id, self.like_df[(self.like_df["user_id"] == current_user.id) &
-                                           (self.like_df["post_id"] == post_id) &
-                                           (self.like_df["reply_id"] == reply_id)].index.values)
             self.like_df.drop(self.like_df[(self.like_df["user_id"] == current_user.id) &
                                            (self.like_df["post_id"] == post_id) &
                                            (self.like_df["reply_id"] == reply_id)].index, inplace=True)
-            print(self.like_df)
             self.__update_likes()
 
     def get_likes(self, current_user, post_id, reply_id=-1):
