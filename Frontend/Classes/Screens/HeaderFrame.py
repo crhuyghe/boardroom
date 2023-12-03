@@ -39,7 +39,7 @@ class HeaderFrame(ttk.Frame, DarkMode):
 
         self.right_frame = ttk.Frame(self, style="headerbar.TFrame")
 
-        self.home_button = FlatButton(self.left_frame, style="headerbar.TLabel",
+        self.home_button = FlatButton(self.left_frame, dark_mode, style="headerbar.TLabel",
                                       font=("Franklin Gothic Heavy", 25, "bold"),
                                       text="Boardroom", foreground=home_fg, command=home_command)
         self.home_button.grid(padx=15, pady=(15, 18))
@@ -82,8 +82,9 @@ class HeaderFrame(ttk.Frame, DarkMode):
         self.password = StringVar()
         self.password_entry = ttk.Entry(self.password_frame, show="*", textvariable=self.password,
                                         font=('Segoe UI Symbol', 10), foreground="#000000")
-        self.cancel_button = FlatButton(self.password_frame, text="Cancel", command=self._hide_password_input)
-        self.confirm_button = FlatButton(self.password_frame, text="Confirm",
+        self.cancel_button = FlatButton(self.password_frame, dark_mode, text="Cancel",
+                                        command=self._hide_password_input)
+        self.confirm_button = FlatButton(self.password_frame, dark_mode, text="Confirm",
                                          command=lambda: self._execute_delete_account_command(delete_account_command))
         self.error_label = ttk.Label(self.password_frame, style="headerbar.TLabel", foreground="red",
                                      font=('Segoe UI Symbol', 10), text="Incorrect password")
@@ -148,6 +149,7 @@ class HeaderFrame(ttk.Frame, DarkMode):
             self.home_button.configure(foreground="#ab0323")
         self.searchbox.swap_mode()
         self.tag_searchbox.swap_mode()
+        self.search_button.swap_mode()
         self.confirm_button.swap_mode()
         self.cancel_button.swap_mode()
 
