@@ -63,12 +63,12 @@ class ConversationFrame(ttk.Frame, DarkMode):
 
         # self.grid_columnconfigure("all", weight=1)
         # self.grid_rowconfigure("all", weight=1)
-        self.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.header_frame.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.text_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.time_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.name_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.email_label.bind("<Button-1>", lambda _: self._execute(open_command))
+        self.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.header_frame.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.text_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.time_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.name_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.email_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode

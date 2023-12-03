@@ -78,17 +78,17 @@ class ResultFrame(ttk.Frame, DarkMode):
         self.grid_columnconfigure("all", weight=1)
         # self.grid_rowconfigure("all", weight=1)
 
-        self.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.title_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.text_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.poster_frame.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.view_count_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.like_count_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.reply_count_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.time_label.bind("<Button-1>", lambda _: self._execute(open_command))
-        self.tag_frame.bind("<Button-1>", lambda _: self._execute(open_command))
+        self.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.title_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.text_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.poster_frame.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.view_count_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.like_count_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.reply_count_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.time_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
+        self.tag_frame.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
         for tag_label in self.tag_list:
-            tag_label.bind("<Button-1>", lambda _: self._execute(open_command))
+            tag_label.bind("<Button-1>", lambda t: self._execute(open_command) if t is not None else None)
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
