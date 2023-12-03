@@ -38,7 +38,7 @@ class MessageFrame(ttk.Frame, DarkMode):
         if is_owned:
             self.rc_menu.add_command(label="Edit", command=self._enable_editing)
             self.del_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
-            self.del_menu.add_command(label="Yes", command=delete_command)
+            self.del_menu.add_command(label="Yes", command=lambda: delete_command(self.message_id))
             self.del_menu.add_command(label="No")
             self.rc_menu.add_cascade(label="Delete", menu=self.del_menu)
 
@@ -71,7 +71,7 @@ class MessageFrame(ttk.Frame, DarkMode):
     def _execute_edit_command(self, edit_command):
         text = self.text_label.get_text()
         if len(text.replace(" ", "").replace("\n", "")) > 0 and text != self._text:
-            edit_command(text)
+            edit_command(self.message_id, text)
             self._text = text
             self._disable_editing()
             self.edited_label.grid(row=6, column=28)

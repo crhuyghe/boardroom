@@ -17,6 +17,8 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
         self.current_user = current_user
         self.recipient = database_response["recipient"]
         self.recipient = User(self.recipient["id"], self.recipient["email"], self.recipient["name"])
+        self._edit = edit_command
+        self._delete = delete_command
 
         self.messages = database_response["messages"]
         self.message_frames = []
@@ -36,7 +38,7 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
         self.header_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
 
         # Displays current messages
-        self.message_list = ScrollFrame(self, dark_mode)
+        self.message_scrollframe = ScrollFrame(self, dark_mode)
 
         # Displays input
         self.footer_frame = ttk.Frame(self, style="headerfooter.TFrame", padding=20)
@@ -72,18 +74,18 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
                 header = True
                 post_time = self.messages[i]["time"]
                 padding = [0, 30, 0, 0]
-            message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
+            message = MessageFrame(self.message_scrollframe.frame, self.messages[i]["text"], sender,
                                    self.messages[i]["id"],
-                                   lambda text: edit_command(self.recipient.id, self.messages[i]["id"], text),
-                                   lambda: delete_command(self.recipient.id, self.messages[i]["id"]), post_time,
+                                   lambda mid, text: edit_command(self.recipient.id, mid, text),
+                                   lambda mid: delete_command(self.recipient.id, mid), post_time,
                                    header, self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
                                    dark_mode, 90, padding=padding)
 
             message.pack(side="top")
 
             self.message_frames.append(message)
-        self.message_list.canvas.update_idletasks()
-        self.message_list.canvas.yview_moveto("1.0")
+        self.message_scrollframe.canvas.update_idletasks()
+        self.message_scrollframe.canvas.yview_moveto("1.0")
 
         self.send_box = ResizingText(self.footer_frame, padding=5, width=50, dark_mode=dark_mode, text_padding=(5, 5),
                                      dynamic=True, display_text=f"Send to {self.recipient.name}",
@@ -97,7 +99,7 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
         self.send_box.pack(side="left", fill="x", expand=True)
 
         self.header_frame.grid(row=0, column=0, sticky="nswe")
-        self.message_list.grid(row=1, column=0, sticky="nsew")
+        self.message_scrollframe.grid(row=1, column=0, sticky="nsew")
         self.footer_frame.grid(row=2, column=0, sticky="nswe")
 
         self.grid_rowconfigure(1, weight=20)
@@ -117,11 +119,52 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
 
     def edit_message_record(self, message_id, text):
         for i in range(len(self.messages)):
+            print(self.messages[i]["id"])
             if int(self.messages[i]["id"]) == message_id:
                 self.messages[i]["text"] = text
                 self.messages[i]["message_is_edited"] = True
 
-    def append_message(self, message, edit_command, delete_command):
+    def flush_messages(self, database_response):
+        for message_frame in self.message_frames:
+            message_frame.destroy()
+        self.message_frames = []
+        self.messages = database_response["messages"]
+        for i in range(len(self.messages)):
+            if self.messages[i]["sender_message"]:
+                sender = self.current_user
+            else:
+                sender = self.recipient
+
+            if i > 0 and self.messages[i-1]["sender_message"] == self.messages[i]["sender_message"]:
+                prev_time = datetime.strptime(self.messages[i-1]["time"], '%Y-%m-%d %X.%f')
+                curr_time = datetime.strptime(self.messages[i]["time"], '%Y-%m-%d %X.%f')
+                if prev_time + timedelta(minutes=2) > curr_time:
+                    header = False
+                    post_time = ""
+                    padding = [0, 5, 0, 0]
+                else:
+                    header = True
+                    post_time = self.messages[i]["time"]
+                    padding = [0, 30, 0, 0]
+            else:
+                header = True
+                post_time = self.messages[i]["time"]
+                padding = [0, 30, 0, 0]
+            message = MessageFrame(self.message_scrollframe.frame, self.messages[i]["text"], sender,
+                                   self.messages[i]["id"],
+                                   lambda mid, text: self._edit(self.recipient.id, mid, text),
+                                   lambda mid: self._delete(self.recipient.id, mid), post_time,
+                                   header, self.messages[i]["sender_message"], self.messages[i]["message_is_edited"],
+                                   self.dark_mode, 90, padding=padding)
+
+            message.pack(side="top")
+
+            self.message_frames.append(message)
+        self.message_scrollframe.canvas.update_idletasks()
+        self.message_scrollframe.canvas.yview_moveto("1.0")
+
+
+    def append_message(self, message):
         if message["sender_message"]:
             sender = self.current_user
         else:
@@ -142,21 +185,23 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
             header = True
             post_time = message["time"]
             padding = [0, 30, 0, 0]
-        new_message = MessageFrame(self.message_list.frame, message["text"], sender,
-                               message["id"],
-                               lambda text: edit_command(self.recipient.id, message["id"], text),
-                               lambda: delete_command(self.recipient.id, message["id"]), post_time,
-                               header, message["sender_message"], message["message_is_edited"],
-                               self.dark_mode, 90, padding=padding)
+        new_message = MessageFrame(self.message_scrollframe.frame, message["text"], sender,
+                                   message["id"],
+                                   lambda mid, text: self._edit(self.recipient.id, mid, text),
+                                   lambda mid: self._delete(self.recipient.id, mid), post_time,
+                                   header, message["sender_message"], message["message_is_edited"],
+                                   self.dark_mode, 90, padding=padding)
         new_message.pack(side="top")
         self.message_frames.append(new_message)
         self.messages.append(message)
+        self.message_scrollframe.canvas.update_idletasks()
+        self.message_scrollframe.canvas.yview_moveto("1.0")
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
         for frame in self.message_frames:
             frame.swap_mode()
-        self.message_list.swap_mode()
+        self.message_scrollframe.swap_mode()
         self.send_box.swap_mode()
         self.send_button.swap_mode()
         if self.dark_mode:

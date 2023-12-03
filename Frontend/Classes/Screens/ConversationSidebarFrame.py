@@ -14,6 +14,7 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
         ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         self.error_active = False
+        self._open = open_command
         if dark_mode:
             ttk.Style().configure("border.TFrame", background="#969fac")
             ttk.Style().configure("send.TFrame", background="#1f2226")
@@ -59,6 +60,7 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
         self.border_list.append(send_border_vertical_l)
 
         self.conversation_list = []
+        self.conversations = database_response["conversations"].copy()
 
         database_response["conversations"].sort(key=lambda x: datetime.strptime(x["last_message_time"],
                                                                                 '%Y-%m-%d %X.%f'), reverse=True)
@@ -111,6 +113,53 @@ class ConversationSidebarFrame(ttk.Frame, DarkMode):
         if self.error_active:
             self.error_active = False
             self.error_label.grid_forget()
+
+    def flush_conversations(self, database_response):
+        new_conversations = database_response["conversations"].copy()
+        database_response["conversations"].sort(key=lambda x: datetime.strptime(x["last_message_time"],
+                                                                                '%Y-%m-%d %X.%f'), reverse=True)
+        if len(self.conversations) > 0 and len(database_response["conversations"]) == 0:
+            self.conversations_frame.destroy()
+            self.no_conversations_frame = ttk.Frame(self, style="send.TFrame")
+            self.no_conversations_label = ttk.Label(self.no_conversations_frame,
+                                                    text="No messages yet!\nSend one to one of\nyour friends!",
+                                                    font=("Segoe UI", 20), style="send.TLabel", justify="center",
+                                                    padding=[0, 50, 0, 0])
+            self.no_conversations_label.grid(column=1)
+            self.no_conversations_frame.grid_columnconfigure(0, weight=1)
+            self.no_conversations_frame.grid_columnconfigure(2, weight=1)
+            self.no_conversations_frame.grid(row=0, column=0, sticky="nsew")
+
+            self.conversations = new_conversations
+        else:
+            if len(self.conversations) == 0:
+                self.no_conversations_frame.destroy()
+                self.conversations_frame = ScrollFrame(self, self.dark_mode, True)
+                self.conversations_frame.grid(row=0, column=0, sticky="nsew")
+            else:
+                for frame in self.conversation_list:
+                    frame.destroy()
+                for i in range(3, len(self.border_list)):
+                    self.border_list[i].destroy()
+
+            self.conversation_list = []
+            self.border_list = self.border_list[:3]
+            for conversation in database_response["conversations"]:
+                recipient = conversation["recipient"]
+                recipient = User(recipient["id"], recipient["email"], recipient["name"])
+
+                conversation_frame = ConversationFrame(self.conversations_frame.frame, recipient,
+                                                       conversation["last_message"], self._open,
+                                                       conversation["last_message_time"], self.dark_mode, padding=20)
+                conversation_frame.pack(side="top", fill="x", expand=1)
+
+                border = ttk.Frame(self.conversations_frame.frame, height=1, style="border.TFrame")
+                border.pack(side="top", fill="x", expand=1)
+
+                self.border_list.append(border)
+                self.conversation_list.append(conversation_frame)
+
+            self.conversations = new_conversations
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode
