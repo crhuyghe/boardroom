@@ -1,5 +1,7 @@
 {
     "success": true,
+    "id": "<id>",
+    "email": "<email>",
     "name": "<name>",
-    "picture": "<picture>"
+    "picture": "<picture> or False"
 }
