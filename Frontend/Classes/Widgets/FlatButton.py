@@ -8,7 +8,7 @@ class FlatButton(ttk.Label, DarkMode):
     def __init__(self, master: tk.Misc | None, dark_mode=False, font=("Segoe UI Symbol", 10),
                  cursor="hand2", padding=(10, 5, 10, 5), command=None, **kwargs):
         ttk.Label.__init__(self, master, font=font, cursor=cursor, padding=padding, **kwargs)
-        self.bind("<Button-1>", lambda _: self._execute(command))
+        self.bind("<Button-1>", lambda t=None: self._execute(command) if t is not None else None)
         if "style" in kwargs.keys():
             self.style = kwargs["style"]
         else:
@@ -28,7 +28,7 @@ class FlatButton(ttk.Label, DarkMode):
 
     def change_command(self, command):
         self.unbind("<Button-1>")
-        self.bind("<Button-1>", lambda _: self._execute(command))
+        self.bind("<Button-1>", lambda t=None: self._execute(command) if t is not None else None)
 
     def _execute(self, command):
         self._sim_button()

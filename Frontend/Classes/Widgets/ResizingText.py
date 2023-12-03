@@ -54,15 +54,15 @@ class ResizingText(ttk.Frame, DarkMode):
                                        fg=fg, insertbackground=ins_bg, padx=text_padding[0], pady=text_padding[1])
 
         if dynamic:
-            self.text_widget.bind("<Key>", lambda _=None: self._update_size())
-            self.text_widget.bind("<KeyRelease>", lambda _=None: self._update_size())
+            self.text_widget.bind("<Key>", lambda t=None: self._update_size() if t is not None else None)
+            self.text_widget.bind("<KeyRelease>", lambda t=None: self._update_size() if t is not None else None)
         else:
             self.scrollbar = ttk.Scrollbar(self, orient="vertical")
             self.scrollbar.configure(command=self.text_widget.yview)
             self.text_widget.configure(yscrollcommand=self.scrollbar.set)
 
-        self.text_widget.bind("<FocusIn>", lambda _=None: self.hide_display_text())
-        self.text_widget.bind("<FocusOut>", lambda _=None: self.check_display_text())
+        self.text_widget.bind("<FocusIn>", lambda t=None: self.hide_display_text() if t is not None else None)
+        self.text_widget.bind("<FocusOut>", lambda t=None: self.check_display_text() if t is not None else None)
 
         self.text_widget.insert(1.0, text)
         height = self.text_widget.count(1.0, "end", "update", "displaylines")
@@ -71,8 +71,8 @@ class ResizingText(ttk.Frame, DarkMode):
         self.text_widget.configure(state="disabled", height=ceil((height / self._width)))
         self.text_widget.pack(side="left", expand=1, fill="x")
 
-        self.text_widget.bind("<Visibility>", lambda _=None: self._update_size())
-        self.text_widget.bind("<Configure>", lambda _=None: self._update_size())
+        self.text_widget.bind("<Visibility>", lambda t=None: self._update_size() if t is not None else None)
+        self.text_widget.bind("<Configure>", lambda t=None: self._update_size() if t is not None else None)
 
     def swap_mode(self):
         editing_flag = False
