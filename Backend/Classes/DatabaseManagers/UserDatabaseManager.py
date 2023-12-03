@@ -42,7 +42,7 @@ class UserDatabaseManager:
         else:
             new_user = User(self.df["id"].iloc[-1] + 1, email, name)
             self.df = pd.concat((self.df,
-                pd.DataFrame([new_user.format_with_password(self.__decrypt(password))])), ignore_index=False)
+                pd.DataFrame([new_user.format_with_password(self.__decrypt(password))])), ignore_index=True)
         self.__updateDF()
         return new_user
 

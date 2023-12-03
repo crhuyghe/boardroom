@@ -59,7 +59,7 @@ class MessageDatabaseManager:
                 new_id = id_values[-1] + 1
             new_message = Message(new_id, user_id, recipient_id, text, False)
             self.df = pd.concat((self.df, pd.DataFrame([new_message.format_for_message_dataframe()])),
-                                ignore_index=False)
+                                ignore_index=True)
         self.__updateDF()
         return new_message
 

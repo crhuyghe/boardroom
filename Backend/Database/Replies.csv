@@ -1,4 +1,10 @@
 reply_id,post_id,poster_id,text,post_time,is_edited
-0,0,0,You tell 'em Cave!,2023-11-04 11:23:24.469726,False
-1,0,0,No lemonade here!,2023-11-04 13:21:46.511837,False
-2,0,0,This post sucks,2023-11-16 14:12:22.695086,False
+0,4,0,And the first reply! Sweet!,2023-12-02 15:47:53.392463,False
+0,5,0,"You tell 'em, Cave!",2023-12-02 16:08:35.771734,False
+1,5,0,Burn their house down!,2023-12-02 16:08:45.486571,False
+2,5,,,,False
+3,5,,,,False
+4,5,,,,False
+5,5,,,,False
+0,1,0,test,2023-12-02 19:34:59.620983,False
+1,1,0,test2,2023-12-02 19:35:04.168759,False

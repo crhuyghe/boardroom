@@ -99,7 +99,7 @@ class BoardroomDatabaseManager:
             self.df = pd.DataFrame([new_boardroom.format_for_dataframe()])
         else:
             new_boardroom = Boardroom(self.df["id"].iloc[-1] + 1, current_user, title, tag_ids, text, 0, 0, False)
-            self.df = pd.concat((self.df, pd.DataFrame([new_boardroom.format_for_dataframe()])), ignore_index=False)
+            self.df = pd.concat((self.df, pd.DataFrame([new_boardroom.format_for_dataframe()])), ignore_index=True)
         self.link_tags(tag_ids, new_boardroom.id)
         self.__update_posts()
         return new_boardroom
@@ -116,7 +116,7 @@ class BoardroomDatabaseManager:
             if len(self.reply_df) == 0:
                 self.reply_df = new_row
             else:
-                self.reply_df = pd.concat((self.reply_df, new_row), ignore_index=False)
+                self.reply_df = pd.concat((self.reply_df, new_row), ignore_index=True)
             self.__update_replies()
         else:
             raise ValueError
@@ -217,12 +217,16 @@ class BoardroomDatabaseManager:
                 self.like_df = pd.DataFrame([{"user_id": current_user.id, "post_id": post_id, "reply_id": reply_id}])
             else:
                 self.like_df = pd.concat((self.like_df, pd.DataFrame([{"user_id": current_user.id, "post_id": post_id,
-                                                                       "reply_id": reply_id}])), ignore_index=False)
+                                                                       "reply_id": reply_id}])), ignore_index=True)
             self.__update_likes()
         else:
+            print(post_id, reply_id, self.like_df[(self.like_df["user_id"] == current_user.id) &
+                                           (self.like_df["post_id"] == post_id) &
+                                           (self.like_df["reply_id"] == reply_id)].index.values)
             self.like_df.drop(self.like_df[(self.like_df["user_id"] == current_user.id) &
                                            (self.like_df["post_id"] == post_id) &
                                            (self.like_df["reply_id"] == reply_id)].index, inplace=True)
+            print(self.like_df)
             self.__update_likes()
 
     def get_likes(self, current_user, post_id, reply_id=-1):
@@ -271,7 +275,7 @@ class BoardroomDatabaseManager:
                 if len(row) == 0:
                     tag_ids.append(new_index)
                     self.tag_df = pd.concat((self.tag_df, pd.DataFrame([{"id": new_index, "tag": tag}])),
-                                            ignore_index=False)
+                                            ignore_index=True)
                     new_index += 1
                 else:
                     tag_ids.append(row[0])
@@ -284,9 +288,9 @@ class BoardroomDatabaseManager:
             new_entries.append({"tag_id": tag_id, "post_id": post_id})
         if len(self.post_tag_df) == 0:
             self.post_tag_df = pd.DataFrame([new_entries[0]])
-            self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries[1:])), ignore_index=False)
+            self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries[1:])), ignore_index=True)
         else:
-            self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries)), ignore_index=False)
+            self.post_tag_df = pd.concat((self.post_tag_df, pd.DataFrame(new_entries)), ignore_index=True)
         self.__update_post_tags()
 
     def __update_posts(self):
