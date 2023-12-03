@@ -126,6 +126,7 @@ class HeaderFrame(ttk.Frame, DarkMode):
 
     def show_error(self):
         self.error_label.grid(row=3, column=0, columnspan=2)
+        self.after(5000, self.error_label.grid_forget)
 
     def swap_mode(self):
         self.dark_mode = not self.dark_mode

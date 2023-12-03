@@ -35,6 +35,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 try:
                     current_user = userDB.login_account(message["email"], message["password"])
                     response["success"] = True
+                    response["id"] = current_user.id
+                    response["email"] = current_user.email
+                    response["name"] = current_user.name
+                    response["picture"] = False
                 except KeyError:
                     response["success"] = False
                     response["message"] = "Incorrect email"
@@ -54,6 +58,10 @@ async def connection(websocket: server.WebSocketServerProtocol):
                 try:
                     current_user = userDB.create_account(message["email"], message["name"], message["password"])
                     response["success"] = True
+                    response["id"] = current_user.id
+                    response["email"] = current_user.email
+                    response["name"] = current_user.name
+                    response["picture"] = False
                 except ValueError:
                     response["success"] = False
                     response["message"] = "An account with this email already exists"

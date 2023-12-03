@@ -46,12 +46,13 @@ class AsyncGUI(tk.Tk, DarkMode):
         self._send_queue = deque()
         self._send_queue_has_element = asyncio.Event()
         self._send_queue_closed = asyncio.Event()
+        self._conv_update_closed = asyncio.Event()
+        self._dm_update_closed = asyncio.Event()
 
         # Set this equal to the user's login request if it is successful
         self.login = None
         self.logged_in = False
-        # self.user = None
-        self.user = User(0, "cave.johnson@aperture.com", "Cave Johnson")
+        self.user = None
 
         # Add your GUI elements here
         self.title("Boardroom")
@@ -59,10 +60,8 @@ class AsyncGUI(tk.Tk, DarkMode):
         self.configure(background="#EEEEEE")
         self._dark_mode = False
         self.swap_mode()
-        self.state('zoomed')
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
+        # Initialize all the GUI elements to None
         self.headerbar = None
         self.welcome_frame = None
         self.conversations_sidebar = None
@@ -70,11 +69,15 @@ class AsyncGUI(tk.Tk, DarkMode):
         self.search_results_frame = None
         self.full_boardroom = None
         self.direct_message_window = None
+        self.login_page = None
+        self.create_account_page = None
 
-        self.run_as_task(self.send_message,
-                         {"action": 1, "email": "cave.johnson@aperture.com", "password": "IH8Lemons"})
+        # Update cycle for direct messages and conversations
+        self.run_as_task(self._conversation_update_handler)
+        self.run_as_task(self._dm_update_handler)
 
-        self.run_as_task(self.launch_homepage)
+        # Start the app on the login page
+        self.run_as_task(self.show_login)
 
     def swap_mode(self):
         self._dark_mode = not self._dark_mode
@@ -104,6 +107,8 @@ class AsyncGUI(tk.Tk, DarkMode):
             self.search_results_frame = None
             self.full_boardroom = None
             self.direct_message_window = None
+            self.login_page = None
+            self.create_account_page = None
         else:
             for widget in self.winfo_children():
                 if type(widget) != HeaderFrame or clear_header:
@@ -119,7 +124,7 @@ class AsyncGUI(tk.Tk, DarkMode):
         if self.headerbar is None:
             self.headerbar = HeaderFrame(self, self.user, lambda: self.run_as_task(self.launch_homepage),
                                          lambda text, tags: self.run_as_task(self.show_search_results, text, tags),
-                                         lambda: self.run_as_task(self.logout),
+                                         lambda: self.run_as_task(self.account_logout),
                                          lambda password: self.run_as_task(self.delete_account, password),
                                          self.swap_mode, dark_mode=self._dark_mode)
             self.headerbar.grid(row=0, column=0, columnspan=2, sticky="new")
@@ -151,9 +156,6 @@ class AsyncGUI(tk.Tk, DarkMode):
                                                 lambda pid, txt: self.run_as_task(self.reply_to_post, pid, txt),
                                                 self._dark_mode)
             self.full_boardroom.grid(row=1, column=0, columnspan=2, sticky="nswe")
-        else:
-            await asyncio.sleep(.5)
-            return await self.create_post(title, text, tags)
 
     async def get_conversations(self):
         message = {"action": 21}
@@ -161,9 +163,6 @@ class AsyncGUI(tk.Tk, DarkMode):
 
         if response["success"]:
             return response
-        else:
-            await asyncio.sleep(.5)
-            return await self.get_conversations()
 
     async def show_direct_messages(self, recipient_id):
         try:
@@ -197,9 +196,6 @@ class AsyncGUI(tk.Tk, DarkMode):
             return response
         elif "does not exist" in response["message"]:
             raise ValueError
-        else:
-            await asyncio.sleep(.5)
-            return await self.get_direct_messages(recipient_id)
 
     async def send_user_message(self, recipient_email, text, new_conversation=False):
         message = {"action": 19, "recipient": recipient_email, "text": text}
@@ -212,25 +208,20 @@ class AsyncGUI(tk.Tk, DarkMode):
                 await self.show_direct_messages(response["recipient"]["id"])
             else:
                 if self.direct_message_window:
-                    self.direct_message_window.append_message(response["messages"][-1],
-                                            lambda rid, mid, txt: self.run_as_task(self.edit_message, rid, mid, txt),
-                                                    lambda rid, mid: self.run_as_task(self.delete_message, rid, mid))
+                    self.direct_message_window.append_message(response["messages"][-1])
                     if not response["messages"] == self.direct_message_window.messages:
+                        self.direct_message_window.flush_messages(response)
                         await self.show_direct_messages(response["recipient"]["id"])
-            # await self.show_direct_messages(response["recipient"]["id"])
         elif "does not exist" in response["message"]:
             if new_conversation:
                 if self.conversations_sidebar:
                     self.conversations_sidebar.show_error()
             else:
                 await self.launch_homepage()
-        else:
-            await asyncio.sleep(.5)
-            return await self.send_user_message(recipient_email, text)
 
     async def edit_message(self, recipient_id, message_id, text):
         message = {"action": 6, "recipient": recipient_id, "message_id": message_id, "text": text}
-
+        print(message)
         response = await self.send_message(message)
         if response["success"]:
             if self.direct_message_window:
@@ -239,9 +230,6 @@ class AsyncGUI(tk.Tk, DarkMode):
             await self.launch_homepage()
         elif "own messages" in response["message"]:
             print("Button misfire detected")
-        else:
-            await asyncio.sleep(.5)
-            return await self.edit_message(recipient_id, message_id, text)
 
     async def delete_message(self, recipient_id, message_id):
         message = {"action": 5, "recipient": recipient_id, "message_id": message_id}
@@ -254,9 +242,6 @@ class AsyncGUI(tk.Tk, DarkMode):
             await self.launch_homepage()
         elif "own messages" in response["message"]:
             print("Button misfire detected")
-        else:
-            await asyncio.sleep(.5)
-            return await self.delete_message(recipient_id, message_id)
 
     async def show_search_results(self, keywords, tags):
         results = await self.search_posts(keywords, tags)
@@ -274,9 +259,6 @@ class AsyncGUI(tk.Tk, DarkMode):
 
         if response["success"]:
             return response
-        else:
-            await asyncio.sleep(.5)
-            return await self.search_posts(keywords, tags)
 
     async def show_boardroom(self, post_id):
         try:
@@ -301,9 +283,6 @@ class AsyncGUI(tk.Tk, DarkMode):
             return response
         elif response["message"] == "Post not found":
             raise ValueError
-        else:
-            await asyncio.sleep(.5)
-            return await self.get_post(post_id)
 
     async def edit_post_or_reply(self, text, post_id, reply_id):
         if reply_id is not None:
@@ -316,9 +295,6 @@ class AsyncGUI(tk.Tk, DarkMode):
             await self.show_boardroom(post_id)
         elif "does not exist" in response["message"]:
             print(response["message"])
-        else:
-            await asyncio.sleep(.5)
-            return await self.edit_post_or_reply(text, post_id, reply_id)
 
     async def delete_post_or_reply(self, post_id, reply_id=None):
         if reply_id is not None:
@@ -334,9 +310,6 @@ class AsyncGUI(tk.Tk, DarkMode):
                 await self.launch_homepage()
         elif "does not exist" in response["message"]:
             print(response["message"])
-        else:
-            await asyncio.sleep(.5)
-            return await self.delete_post_or_reply(post_id, reply_id)
 
     async def reply_to_post(self, post_id, text):
         message = {"action": 15, "post_id": post_id, "text": text}
@@ -347,9 +320,6 @@ class AsyncGUI(tk.Tk, DarkMode):
         elif "post does not exist" in response["message"]:
             print(response["message"])
             await self.launch_homepage()
-        else:
-            await asyncio.sleep(.5)
-            return await self.reply_to_post(post_id, text)
 
     async def like_post_or_reply(self, post_id, reply_id=None):
         if reply_id is not None:
@@ -362,15 +332,82 @@ class AsyncGUI(tk.Tk, DarkMode):
             return response
         elif "does not exist" in response["message"]:
             print(response["message"])
-        else:
-            await asyncio.sleep(.5)
-            return await self.like_post_or_reply(post_id, reply_id)
 
-    async def logout(self):
-        pass
+    async def show_login(self):
+        self.clear_window(clear_header=True)
+        self.state("normal")
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0)
+        self.login_page = LoginFrame(self, lambda email, password: self.run_as_task(self.account_login, email, password),
+                                     lambda: self.run_as_task(self.show_create_account))
+        self.login_page.grid(row=0, column=0, sticky="nswe")
+
+    async def show_create_account(self):
+        self.clear_window(clear_header=True)
+        self.state("normal")
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0)
+        self.create_account_page = CreateAccountFrame(self, lambda: self.run_as_task(self.show_login),
+                            lambda email, name, password: self.run_as_task(self.create_account, email, name, password))
+        self.create_account_page.grid(row=0, column=0, sticky="nswe")
+
+    async def account_login(self, email, password):
+        message = {"action": 1, "email": email, "password": password}
+
+        response = await self.send_message(message)
+        if response["success"]:
+            self.user = User(response["id"], response["email"], response["name"])
+            self.login = message
+            self.logged_in = True
+            await self.launch_homepage()
+            self.state("zoomed")
+        elif response["lockout"]:
+            if self.login_page:
+                self.login_page.show_warning_label("This account is locked out until tomorrow")
+        else:
+            if self.login_page:
+                self.login_page.show_warning_label("Incorrect email or password")
+
+    async def account_logout(self):
+        message = {"action": 10}
+
+        response = await self.send_message(message)
+        if response["success"]:
+            self.login = None
+            self.user = None
+            self.logged_in = False
+            await self.show_login()
+
+    async def create_account(self, email, name, password):
+        message = {"action": 2, "email": email, "name": name, "password": password}
+
+        response = await self.send_message(message)
+        if response["success"]:
+            self.user = User(response["id"], response["email"], response["name"])
+            self.login = {"action": 1, "email": email, "password": password}
+            self.logged_in = True
+            await self.launch_homepage()
+            self.state("zoomed")
+        elif "exists" in response["message"]:
+            self.create_account_page.show_warning_label("An account with this email already exists")
 
     async def delete_account(self, password):
-        pass
+        message = {"action": 4, "password": password}
+
+        response = await self.send_message(message)
+        if response["success"]:
+            self.login = None
+            self.user = None
+            self.logged_in = False
+            await self.show_login()
+        elif response["lockout"]:
+            await self.account_logout()
+        else:
+            self.headerbar.show_error()
+
+
+    async def modify_account(self, email, password, name):
+        pass  # Possibly replace welcome frame with modify account frame?
 
     def run_as_task(self, func, *args):
         task = self.loop.create_task(func(*args))
@@ -389,8 +426,9 @@ class AsyncGUI(tk.Tk, DarkMode):
         self._send_queue.append(flags)
         if not self._send_queue_has_element.is_set():
             self._send_queue_has_element.set()
-
+        print(message)
         message = json.JSONEncoder().encode(message)
+
 
         await flags[0].wait()
 
@@ -405,7 +443,7 @@ class AsyncGUI(tk.Tk, DarkMode):
         return json.JSONDecoder().decode(self._incoming_message)
 
     async def _send_queue_handler(self):
-        while not self._closing or len(self._send_queue) == 0:
+        while not self._closing or len(self._send_queue) != 0:
             if len(self._send_queue) == 0:
                 self._send_queue_has_element.clear()
             await self._send_queue_has_element.wait()
@@ -416,6 +454,37 @@ class AsyncGUI(tk.Tk, DarkMode):
             else:
                 self._send_queue_closed.set()
         self._send_queue_closed.set()
+
+    async def _conversation_update_handler(self):
+        while not self._closing:
+            if self.conversations_sidebar:
+                await asyncio.sleep(3)
+                conversations = (await self.get_conversations())
+
+                if self.conversations_sidebar and conversations["conversations"] != self.conversations_sidebar.conversations:
+                    self.conversations_sidebar.flush_conversations(conversations)
+            else:
+                await asyncio.sleep(1)
+        self._conv_update_closed.set()
+
+
+    async def _dm_update_handler(self):
+        while not self._closing:
+            if self.direct_message_window:
+                await asyncio.sleep(2)
+                try:
+                    response = (await self.get_direct_messages(self.direct_message_window.recipient.id))
+
+                    if self.direct_message_window and len(response["messages"]) > len(self.direct_message_window.messages):
+                        for new_message in response["messages"][len(self.direct_message_window.messages):]:
+                            self.direct_message_window.append_message(new_message)
+                    if self.direct_message_window and response["messages"] != self.direct_message_window.messages:
+                        self.direct_message_window.flush_messages(response)
+                except ValueError:
+                    await self.launch_homepage()
+            else:
+                await asyncio.sleep(1)
+        self._dm_update_closed.set()
 
     async def _connection_handler(self, reconnecting=False):
         try:
@@ -474,9 +543,14 @@ class AsyncGUI(tk.Tk, DarkMode):
         self._incoming_message = '{"success": false}'
         self._incoming_message_flag.set()
         self._send_queue_has_element.set()
-        await asyncio.wait_for(self._send_queue_closed.wait(), 3)
-        await asyncio.wait_for(self._connection_closed.wait(), 4)
-        await asyncio.wait_for(self._updater_closed.wait(), 3)
+        try:
+            await asyncio.wait_for(self._send_queue_closed.wait(), 3)
+            await asyncio.wait_for(self._dm_update_closed.wait(), 3)
+            await asyncio.wait_for(self._conv_update_closed.wait(), 4)
+            await asyncio.wait_for(self._connection_closed.wait(), 4)
+            await asyncio.wait_for(self._updater_closed.wait(), 3)
+        except asyncio.TimeoutError as e:
+            print(e)
         for task in self.tasks:
             if task and "AsyncGUI._close" not in str(task.get_coro()):
                 task.cancel(msg=None)
