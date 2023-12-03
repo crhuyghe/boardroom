@@ -289,7 +289,6 @@ async def connection(websocket: server.WebSocketServerProtocol):
                         {"recipient": receiver.format_for_response(), "last_message": text,
                          "last_message_time": time})
 
-            print(message)
             await websocket.send(encoder.encode(response))
 
     except ws.ConnectionClosedOK:
