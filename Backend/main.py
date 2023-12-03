@@ -265,7 +265,7 @@ async def connection(websocket: server.WebSocketServerProtocol):
 
             elif message["action"] == 20:  # Get Messages
                 participant = userDB.search("id", message["participant_id"])
-                if pd.isna(participant.email):
+                if not pd.isna(participant.email):
                     participant = userDB.get_user_by_id(int(participant.id))
                     direct_messages = messageDB.get_messages(participant.id, current_user.id)
 
