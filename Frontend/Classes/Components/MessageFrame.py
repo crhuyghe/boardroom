@@ -26,7 +26,7 @@ class MessageFrame(ttk.Frame, DarkMode):
             name_color = "#444444"
             menu_colors = ("#eeeeee", "#000000")
 
-        self.text_label = ResizingText(self, text, width=width, font=("Segoe UI Symbol", 10), dark_mode=dark_mode,
+        self.text_label = ResizingText(self, text, width=width, font=("Segoe UI Symbol", 15), dark_mode=dark_mode,
                                        padding=[25, 0, 0, 0])
 
         self.edited_label = ttk.Label(self, text="(edited)", foreground="#AAAAAA", font=("Segoe UI Symbol", 8))
@@ -55,9 +55,9 @@ class MessageFrame(ttk.Frame, DarkMode):
                 post_time = post_time[:16] + post_time[17:]
             if post_time[4] == "0":
                 post_time = post_time[:4] + post_time[5:]
-            self.time_label = ttk.Label(self.header_frame, text=post_time, font=("Segoe UI Symbol", 10),
+            self.time_label = ttk.Label(self.header_frame, text=post_time, font=("Segoe UI Symbol", 15),
                                         foreground=time_color, padding=[10, 2, 0, 0])
-            self.name_label = ttk.Label(self.header_frame, text=poster.name, font=("Segoe UI Bold", 12),
+            self.name_label = ttk.Label(self.header_frame, text=poster.name, font=("Segoe UI Bold", 18),
                                         foreground=name_color)
 
             self.name_label.grid(row=0, column=0, sticky="w")

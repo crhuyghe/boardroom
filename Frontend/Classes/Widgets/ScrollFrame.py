@@ -21,7 +21,7 @@ class ScrollFrame(tk.Frame, DarkMode):
             if alt_color:
                 bg = "#DDDDDD"
             else:
-                bg = "#FFFFFF"
+                bg = "#EEEEEE"
         kwargs["background"] = bg
         tk.Frame.__init__(self, master, **{'width': 400, 'height': 300, **kwargs})
 
@@ -103,7 +103,7 @@ class ScrollFrame(tk.Frame, DarkMode):
             if self.alt_color:
                 bg = "#DDDDDD"
             else:
-                bg = "#FFFFFF"
+                bg = "#EEEEEE"
         self.canvas.configure(bg=bg)
         self.frame.configure(bg=bg)
         self.configure(bg=bg)

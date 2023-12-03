@@ -67,11 +67,11 @@ class DirectMessagesFrame(ttk.Frame, DarkMode):
                 else:
                     header = True
                     post_time = self.messages[i]["time"]
-                    padding = [0, 10, 0, 0]
+                    padding = [0, 30, 0, 0]
             else:
                 header = True
                 post_time = self.messages[i]["time"]
-                padding = [0, 10, 0, 0]
+                padding = [0, 30, 0, 0]
             message = MessageFrame(self.message_list.frame, self.messages[i]["text"], sender,
                                    self.messages[i]["id"],
                                    lambda text: edit_command(self.recipient.id, self.messages[i]["id"], text),
