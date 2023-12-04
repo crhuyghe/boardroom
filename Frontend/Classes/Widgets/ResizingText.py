@@ -8,13 +8,18 @@ from Frontend.Classes.Components.DarkModeInterface import DarkMode
 
 class ResizingText(ttk.Frame, DarkMode):
     def __init__(self, master: tk.Misc | None, text: str = "", cnf: dict = None, width: int = 100, font=None,
-                 dark_mode: bool = False, alt_color=False, dynamic=False, text_padding=0, display_text="", min_height=1, **kwargs):
+                 dark_mode: bool = False, alt_color=False, dynamic=False, text_padding=0, display_text="",
+                 min_height=1, editing_height=None, **kwargs):
         ttk.Frame.__init__(self, master, **kwargs)
         self.dark_mode = dark_mode
         self.alt_color = alt_color
         self.editing_enabled = False
         self.display_text = display_text
         self._min_height = min_height
+        if editing_height is None:
+            self._edit_height = min_height
+        else:
+            self._edit_height = editing_height
         self._dynamic = dynamic
         self._width = width
 
@@ -142,7 +147,7 @@ class ResizingText(ttk.Frame, DarkMode):
         if self.editing_enabled:
             if not self._dynamic:
                 self.scrollbar.pack(side="right", expand=1, fill="y")
-                self._update_size(6)
+                self._update_size(1)
             self.text_widget.configure(state="normal", bg=alt_bg)
             self.check_display_text()
         else:
@@ -171,13 +176,17 @@ class ResizingText(ttk.Frame, DarkMode):
             else:
                 self.text_widget.configure(foreground="#000000")
 
-    def _update_size(self, min_size=0):
+    def _update_size(self, additional_height=0):
         self.update_idletasks()
         height = self.text_widget.count(1.0, "end", "update", "displaylines")
+        if self.editing_enabled:
+            height = max(height + additional_height, self._edit_height)
+        else:
+            height = max(height + additional_height, self._min_height)
         self._empty = self.text_widget.get(1.0, "end").replace("\n", "") == ""
         if height != self._height:
             if (len(self.get_text().replace(" ", "")) - 1 != height or self._empty):
-                self.text_widget.configure(height=max(height, min_size, self._min_height))
+                self.text_widget.configure(height=height)
                 self._height = height
             else:
                 self.after(10, self._update_size)

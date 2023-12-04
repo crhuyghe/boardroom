@@ -21,7 +21,7 @@ class ReplyFrame(ttk.Frame, DarkMode):
         self._text = text
 
         self.text_label = ResizingText(self, text, width=width, dark_mode=self.dark_mode, font=("Segoe UI Symbol", 14),
-                                       padding=[25, 0, 0, 5], dynamic=True)
+                                       padding=[25, 0, 0, 5], editing_height=5)
         if dark_mode:
             time_foreground = "#a6afbc"
             self.liked_image = tk.PhotoImage(file="Assets/liked_dark.png")

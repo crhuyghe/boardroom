@@ -27,7 +27,7 @@ class MessageFrame(ttk.Frame, DarkMode):
             menu_colors = ("#eeeeee", "#000000")
 
         self.text_label = ResizingText(self, text, width=width, font=("Segoe UI Symbol", 15), dark_mode=dark_mode,
-                                       padding=[25, 0, 0, 0], dynamic=True)
+                                       padding=[25, 0, 0, 0], editing_height=3)
 
         self.edited_label = ttk.Label(self, text="(edited)", foreground="#AAAAAA", font=("Segoe UI Symbol", 8))
         if is_edited:

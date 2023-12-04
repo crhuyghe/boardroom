@@ -1,3 +1,4 @@
+import contextlib
 import tkinter as tk
 import asyncio
 import json
@@ -459,10 +460,13 @@ class AsyncGUI(tk.Tk, DarkMode):
         while not self._closing:
             if self.conversations_sidebar:
                 await asyncio.sleep(3)
-                conversations = (await self.get_conversations())
+                try:
+                    conversations = (await self.get_conversations())
 
-                if self.conversations_sidebar and conversations["conversations"] != self.conversations_sidebar.conversations:
-                    self.conversations_sidebar.flush_conversations(conversations)
+                    if self.conversations_sidebar and conversations["conversations"] != self.conversations_sidebar.conversations:
+                        self.conversations_sidebar.flush_conversations(conversations)
+                except AttributeError:
+                    continue
             else:
                 await asyncio.sleep(1)
         self._conv_update_closed.set()
@@ -482,6 +486,8 @@ class AsyncGUI(tk.Tk, DarkMode):
                         self.direct_message_window.flush_messages(response)
                 except ValueError:
                     await self.launch_homepage()
+                except AttributeError:
+                    continue
             else:
                 await asyncio.sleep(1)
         self._dm_update_closed.set()
@@ -545,15 +551,14 @@ class AsyncGUI(tk.Tk, DarkMode):
         self._send_queue_has_element.set()
         try:
             await asyncio.wait_for(self._send_queue_closed.wait(), 3)
-            await asyncio.wait_for(self._dm_update_closed.wait(), 3)
-            await asyncio.wait_for(self._conv_update_closed.wait(), 4)
             await asyncio.wait_for(self._connection_closed.wait(), 4)
             await asyncio.wait_for(self._updater_closed.wait(), 3)
         except asyncio.TimeoutError as e:
             print(e)
         for task in self.tasks:
-            if task and "AsyncGUI._close" not in str(task.get_coro()):
-                task.cancel(msg=None)
+            with contextlib.suppress(asyncio.CancelledError):
+                if task and "AsyncGUI._close" not in str(task.get_coro()):
+                    task.cancel(msg=None)
         self.loop.stop()
         self.destroy()
 

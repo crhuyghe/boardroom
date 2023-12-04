@@ -111,6 +111,7 @@ class HeaderFrame(ttk.Frame, DarkMode):
 
     def _show_password_input(self):
         self.password_frame.pack(side="right")
+
     def _hide_password_input(self):
         self.password_frame.pack_forget()
         self.error_label.grid_forget()

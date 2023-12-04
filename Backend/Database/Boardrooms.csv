@@ -3,6 +3,6 @@ id,title,poster_id,text,view_count,post_time,is_edited
 1,Post Title 2,0,post text,2,2023-11-03 13:12:31.812848,False
 2,test post,1,Insert text here,9,2023-11-06 14:15:56.022726,False
 3,,,,,,False
-4,This is the first message sent from the actual GUI!,0,"Cool, right? I know!",0,2023-12-02 15:46:31.825641,False
+4,This is the first message sent from the actual GUI!,0,"Cool, right? I know!",0,2023-12-02 15:46:31.825641,True
 5,On Lemons: A memoir by Cave Johnson,0,"When life gives you lemons, don't make lemonade! Get mad!",5,2023-12-02 16:08:21.688844,False
 6,,,,,,False
