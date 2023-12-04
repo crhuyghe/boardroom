@@ -1,7 +1,6 @@
 id,email,name,password,time_created,picture_link,login_attempts
 0,cave.johnson@aperture.com,Cave Johnson,IH8Lemons,2023-10-21 11:22:51.915562,,0
-1,test@test.com,Test Testington,test,2023-10-22 12:20:39.091385,,0
-2,caroline@aperture.com,Caroline,test,2023-11-16 14:13:54.902741,,0
-3,crhuyghe@oakland.edu,Christian Huyghe,password,2023-12-03 17:01:44.935294,,0
-4,,,,,,
-5,,,,,,
+1,jmarston@rockstar.com,John Marston,ILuvhorse,2023-12-04 13:07:47.800520,,0
+2,wafton@fazbear.com,William Afton,biteof'87,2023-12-04 13:11:05.986901,,0
+3,henry@fazbear.com,Henry Emily,fazbear,2023-12-04 13:14:36.353402,,0
+4,jack@gearbox.com,Jack Hyperion,border,2023-12-04 13:25:26.468608,,0

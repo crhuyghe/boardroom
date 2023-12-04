@@ -1,11 +1,5 @@
 reply_id,post_id,poster_id,text,post_time,is_edited
-0,4,0,And the first reply! Sweet!,2023-12-02 15:47:53.392463,False
-0,5,0,"You tell 'em, Cave!",2023-12-02 16:08:35.771734,False
-1,5,0,Burn their house down!,2023-12-02 16:08:45.486571,False
-2,5,,,,False
-3,5,,,,False
-4,5,,,,False
-5,5,,,,False
-0,1,0,test,2023-12-02 19:34:59.620983,False
-1,1,0,test2,2023-12-02 19:35:04.168759,False
-6,5,,,,False
+0,0,1,"And no, this has nothing to do with Freddy Fazbear!",2023-12-04 13:10:10.224162,False
+1,0,2,Is ThAt FrEdDy FaZbEaR!?!?1?!,2023-12-04 13:11:39.029362,False
+2,0,3,"Shut up William, get back in your rabbit suit.",2023-12-04 13:15:08.273183,True
+3,0,1,"AW, COME ON",2023-12-04 13:20:21.548096,False

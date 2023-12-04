@@ -1,8 +1,4 @@
 id,title,poster_id,text,view_count,post_time,is_edited
-0,,,,,,False
-1,Post Title 2,0,post text,2,2023-11-03 13:12:31.812848,False
-2,test post,1,Insert text here,9,2023-11-06 14:15:56.022726,False
-3,,,,,,False
-4,This is the first message sent from the actual GUI!,0,"Cool, right? I know!",0,2023-12-02 15:46:31.825641,True
-5,On Lemons: A memoir by Cave Johnson,0,"When life gives you lemons, don't make lemonade! Get mad!",5,2023-12-02 16:08:21.688844,False
-6,,,,,,False
+0,"Bears, and bears, and bears oh my",1,"Why are there so many bears out here? For the love of all things holy, please reduce the bear population",8,2023-12-04 13:09:38.061906,False
+1,On Lemons: A memoir by Cave Johnson,0,"Alright, I've been thinking. When life gives you lemons, don't make lemonade! Make life take the lemons back! Get mad! I don't want your damn lemons; what am I supposed to do with these? Demand to see life's manager! Make life rue the day it thought it could give Cave Johnson lemons! Do you know who I am? I'm the man who's gonna burn your house down... with the lemons! I'm gonna get my engineers to invent a combustible lemon that burns your house down!",0,2023-12-04 13:30:04.670887,False
+2,I always come back,2,"And no, ""William Afton"" is not an alias for ""Norville 'Shaggy' Rogers""! Stop asking!",0,2023-12-04 13:32:14.661569,False

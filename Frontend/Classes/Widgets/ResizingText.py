@@ -88,16 +88,28 @@ class ResizingText(ttk.Frame, DarkMode):
             editing_flag = True
         if self.dark_mode:
             if self.alt_color:
-                bg = "#292c30"
+                if self.editing_enabled:
+                    bg = "#24272b"
+                else:
+                    bg = "#292c30"
             else:
-                bg = "#24272b"
+                if self.editing_enabled:
+                    bg = "#292c30"
+                else:
+                    bg = "#24272b"
             fg = "#b6bfcc"
             ins_bg = "#b6bfcc"
         else:
             if self.alt_color:
-                bg = "#EEEEEE"
+                if self.editing_enabled:
+                    bg = "#EEEEEE"
+                else:
+                    bg = "#FFFFFF"
             else:
-                bg = "#FFFFFF"
+                if self.editing_enabled:
+                    bg = "#FFFFFF"
+                else:
+                    bg = "#EEEEEE"
             fg = "#000000"
             ins_bg = "#000000"
         self.text_widget.configure(bg=bg, fg=fg, insertbackground=ins_bg)
