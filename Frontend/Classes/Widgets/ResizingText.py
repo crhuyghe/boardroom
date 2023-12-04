@@ -90,9 +90,9 @@ class ResizingText(ttk.Frame, DarkMode):
             ins_bg = "#b6bfcc"
         else:
             if self.alt_color:
-                bg = "#FFFFFF"
-            else:
                 bg = "#EEEEEE"
+            else:
+                bg = "#FFFFFF"
             fg = "#000000"
             ins_bg = "#000000"
         self.text_widget.configure(bg=bg, fg=fg, insertbackground=ins_bg)

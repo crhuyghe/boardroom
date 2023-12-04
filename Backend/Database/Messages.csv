@@ -11,7 +11,7 @@ sender_id,receiver_id,id,text,post_time,is_edited
 0,2,2,,,False
 0,1,7,,,False
 1,0,8,"No, thank you",2023-12-03 13:15:33.233034,False
-0,1,9,"Aw, why not?",2023-12-03 13:19:16.912936,False
+0,1,9,"Aw, why not?",2023-12-03 13:19:16.912936,True
 1,0,10,"I have my reasons, thank you.",2023-12-03 13:19:49.964297,True
 0,1,11,,,False
 1,2,0,Hello,2023-12-03 14:17:03.553905,False

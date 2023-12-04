@@ -36,7 +36,7 @@ class BoardroomFrame(ttk.Frame, DarkMode):
                                         padding=[0, 0, 0, 5], text_padding=(10, 5), alt_color=True)
 
         self.text_label = ResizingText(self, text=text, dark_mode=dark_mode, width=int(width*(5/6)),
-                                       padding=[30, 5, 0, 10])
+                                       padding=[30, 5, 0, 10], dynamic=True)
 
         self.rc_menu = tk.Menu(self, tearoff=0, background=menu_colors[0], foreground=menu_colors[1])
         self.rc_menu.add_command(label="Copy", command=lambda: self._copy_text())
